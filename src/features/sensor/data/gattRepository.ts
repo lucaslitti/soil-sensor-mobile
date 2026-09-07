@@ -19,6 +19,7 @@ import {
   READ_TIMEOUT_MS,
   SERVICE_INSTANCE_READING,
   SERVICE_RECORD,
+  SUB_RECORDS_PER_RECORD,
   TOGGLE_OFF,
   TOGGLE_ON,
 } from '../../../core/constants/protocol';
@@ -29,10 +30,11 @@ import {
   type SubRecord,
 } from '../domain/codec';
 import { bleManager } from '../../scanner/data/bleTransport';
+import { bytesToHex, logBle, logBleError } from '../../../infrastructure/ble/bleLogger';
 
 function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new AppError('connect-timeout', `${label} 超时`)), ms);
+    const t = setTimeout(() => reject(new AppError('connect-timeout', `${label} timeout`)), ms);
     p.then(
       (v) => {
         clearTimeout(t);
@@ -54,13 +56,35 @@ async function readCharBytes(
   const errors: string[] = [];
   for (const candidate of buildUuidVariants(charUuid)) {
     try {
+      logBle('gatt.read.start', {
+        deviceId: device.id,
+        service: serviceUuid,
+        characteristic: charUuid,
+        candidate,
+      });
       const char = await device.readCharacteristicForService(serviceUuid, candidate);
-      return base64ToBytes(char.value ?? '');
+      const bytes = base64ToBytes(char.value ?? '');
+      logBle('gatt.read.success', {
+        deviceId: device.id,
+        service: serviceUuid,
+        characteristic: charUuid,
+        candidate,
+        bytes: bytes.length,
+        hex: bytesToHex(bytes),
+        base64: char.value ?? '',
+      });
+      return bytes;
     } catch (e) {
       errors.push(String(e));
+      logBleError('gatt.read.candidate.error', e, {
+        deviceId: device.id,
+        service: serviceUuid,
+        characteristic: charUuid,
+        candidate,
+      });
     }
   }
-  throw new AppError('read-failed', `读取特征失败，候选: ${buildUuidVariants(charUuid).join(', ')}`);
+  throw new AppError('read-failed', `Failed to read characteristic, candidates: ${buildUuidVariants(charUuid).join(', ')}`);
 }
 
 async function writeCharByte(
@@ -71,17 +95,29 @@ async function writeCharByte(
 ): Promise<void> {
   for (const candidate of buildUuidVariants(charUuid)) {
     try {
+      const value = bytesToBase64(Uint8Array.of(byte));
+      logBle('gatt.write.start', {
+        deviceId: device.id,
+        service: serviceUuid,
+        characteristic: charUuid,
+        candidate,
+        bytes: 1,
+        hex: byte.toString(16).padStart(2, '0'),
+        base64: value,
+      });
       await device.writeCharacteristicWithResponseForService(
         serviceUuid,
         candidate,
-        bytesToBase64(Uint8Array.of(byte)),
+        value,
       );
+      logBle('gatt.write.success', { deviceId: device.id, service: serviceUuid, characteristic: charUuid, candidate });
       return;
-    } catch {
+    } catch (error) {
+      logBleError('gatt.write.candidate.error', error, { deviceId: device.id, service: serviceUuid, characteristic: charUuid, candidate });
       // 尝试下一个候选形式
     }
   }
-  throw new AppError('read-failed', `写入特征失败，候选: ${buildUuidVariants(charUuid).join(', ')}`);
+  throw new AppError('read-failed', `Failed to write characteristic, candidates: ${buildUuidVariants(charUuid).join(', ')}`);
 }
 
 export interface GattRepository {
@@ -92,38 +128,88 @@ export interface GattRepository {
   readLatest(device: Device): Promise<SubRecord[]>;
   readL1(device: Device): Promise<SubRecord[]>;
   readL2(device: Device): Promise<SubRecord[]>;
+  /** 合并读取全部保留记录（L1 + L2），按存储槽位正序返回。 */
+  readAll(device: Device): Promise<SubRecord[]>;
 }
 
 export class BleGattRepository implements GattRepository {
+  private readonly devices = new Map<string, Device>();
+  private readonly references = new Map<string, number>();
+  private readonly connecting = new Map<string, Promise<Device>>();
+
   async connect(deviceId: string): Promise<Device> {
+    const existing = this.devices.get(deviceId);
+    if (existing) {
+      this.references.set(deviceId, (this.references.get(deviceId) ?? 1) + 1);
+      return existing;
+    }
+
+    const pending = this.connecting.get(deviceId);
+    if (pending) {
+      const device = await pending;
+      this.references.set(deviceId, (this.references.get(deviceId) ?? 1) + 1);
+      return device;
+    }
+
+    const connection = this.connectFresh(deviceId);
+    this.connecting.set(deviceId, connection);
+    try {
+      const device = await connection;
+      this.devices.set(deviceId, device);
+      this.references.set(deviceId, 1);
+      return device;
+    } finally {
+      this.connecting.delete(deviceId);
+    }
+  }
+
+  private async connectFresh(deviceId: string): Promise<Device> {
+    logBle('gatt.connect.start', { deviceId });
     const device = await withTimeout(
       bleManager.connectToDevice(deviceId),
       CONNECT_TIMEOUT_MS,
-      '连接',
+      'Connect',
     );
+    logBle('gatt.connect.transport.success', { deviceId: device.id, name: device.name ?? null });
     await device.discoverAllServicesAndCharacteristics();
+    logBle('gatt.services.discovered', { deviceId: device.id });
     return device;
   }
 
   async disconnect(device: Device): Promise<void> {
+    logBle('gatt.disconnect.start', { deviceId: device.id });
+    const references = this.references.get(device.id) ?? 1;
+    if (references > 1) {
+      this.references.set(device.id, references - 1);
+      logBle('gatt.disconnect.released_reference', { deviceId: device.id, references: references - 1 });
+      return;
+    }
+    this.devices.delete(device.id);
+    this.references.delete(device.id);
     try {
       await device.cancelConnection();
+      logBle('gatt.disconnect.success', { deviceId: device.id });
     } catch {
+      logBle('gatt.disconnect.already_closed', { deviceId: device.id });
       // 忽略断开失败
     }
   }
 
   async readLive(device: Device): Promise<LiveReading> {
+    logBle('gatt.live.read.start', { deviceId: device.id });
     const [moisture, temperature, ec, timestamp] = await Promise.all([
       readCharBytes(device, SERVICE_INSTANCE_READING, CHAR_MOISTURE),
       readCharBytes(device, SERVICE_INSTANCE_READING, CHAR_TEMPERATURE),
       readCharBytes(device, SERVICE_INSTANCE_READING, CHAR_EC),
       readCharBytes(device, SERVICE_INSTANCE_READING, CHAR_TIMESTAMP),
     ]);
-    return decodeLive(moisture, temperature, ec, timestamp);
+    const reading = decodeLive(moisture, temperature, ec, timestamp);
+    logBle('gatt.live.read.decoded', { deviceId: device.id, reading });
+    return reading;
   }
 
   async setReadingEnabled(device: Device, enabled: boolean): Promise<void> {
+    logBle('gatt.reading_toggle', { deviceId: device.id, enabled, value: enabled ? TOGGLE_ON : TOGGLE_OFF });
     await writeCharByte(
       device,
       SERVICE_INSTANCE_READING,
@@ -141,6 +227,7 @@ export class BleGattRepository implements GattRepository {
   ): Promise<SubRecord[]> {
     const familyHex = family.toString(16).padStart(2, '0');
     const out: SubRecord[] = [];
+    logBle('gatt.history.family.start', { deviceId: device.id, family, startIndex, count });
     for (let i = 0; i < count; i++) {
       const idxHex = i.toString(16).padStart(2, '0');
       // 特征 UUID：XXYY0000-0000-726f-736e-65536c696f53
@@ -148,11 +235,12 @@ export class BleGattRepository implements GattRepository {
       const bytes = await withTimeout(
         readCharBytes(device, SERVICE_RECORD, charUuid),
         READ_TIMEOUT_MS,
-        `记录 ${startIndex + i}`,
+        `Record ${startIndex + i}`,
       );
       const subs = decodeRecord(bytes);
       for (const s of subs) if (!s.isEmpty) out.push(s);
     }
+    logBle('gatt.history.family.success', { deviceId: device.id, family, records: out.length });
     return out;
   }
 
@@ -169,6 +257,17 @@ export class BleGattRepository implements GattRepository {
 
   async readL2(device: Device): Promise<SubRecord[]> {
     return this.readRecords(device, RECORD_FAMILY_L2, 0, 24);
+  }
+
+  async readAll(device: Device): Promise<SubRecord[]> {
+    const [l2, l1] = await Promise.all([this.readL2(device), this.readL1(device)]);
+    // 存储槽位 = recordIndex * 子记录数 + subIndex，按槽位正序合并为连续时间线
+    return [...l2, ...l1].sort(
+      (a, b) =>
+        a.recordIndex * SUB_RECORDS_PER_RECORD +
+        a.subIndex -
+        (b.recordIndex * SUB_RECORDS_PER_RECORD + b.subIndex),
+    );
   }
 }
 

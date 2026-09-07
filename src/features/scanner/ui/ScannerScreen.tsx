@@ -12,6 +12,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useScanner } from '../hooks/useScanner';
 import { colors } from '../../../app/theme/colors';
+import { BluetoothIcon } from '../../../shared/components/BluetoothIcon';
+import { AutorenewIcon } from '../../../shared/components/AutorenewIcon';
+import { dashboardManager } from '../../dashboard/data/dashboardManager';
 import type { RootStackParamList } from '../../../app/navigation/types';
 import type { ScannedDevice } from '../domain/scanState';
 
@@ -28,15 +31,35 @@ interface SignalInfo {
 
 function signalInfo(rssi: number): SignalInfo {
   if (rssi >= -60) {
-    return { bars: 4, label: '极佳', color: colors.onSurface, rssiColor: colors.statusProven };
+    return { bars: 4, label: 'Excellent', color: colors.onSurface, rssiColor: colors.statusProven };
   }
   if (rssi >= -75) {
-    return { bars: 3, label: '良好', color: colors.onSurface, rssiColor: colors.onSurface };
+    return { bars: 3, label: 'Good', color: colors.onSurface, rssiColor: colors.onSurface };
   }
   if (rssi >= -90) {
-    return { bars: 2, label: '较弱', color: colors.secondary, rssiColor: colors.statusFeasibility };
+    return { bars: 2, label: 'Fair', color: colors.secondary, rssiColor: colors.statusFeasibility };
   }
-  return { bars: 1, label: '微弱', color: colors.secondary, rssiColor: colors.statusFeasibility };
+  return { bars: 1, label: 'Weak', color: colors.secondary, rssiColor: colors.statusFeasibility };
+}
+
+function SectionHeader({
+  accentColor,
+  label,
+  enLabel,
+}: {
+  accentColor: string;
+  label: string;
+  enLabel: string;
+}) {
+  return (
+    <View style={styles.sectionHeader}>
+      <View style={styles.sectionHeaderLeft}>
+        <View style={[styles.sectionAccent, { backgroundColor: accentColor }]} />
+        <Text style={styles.sectionLabel}>{label}</Text>
+      </View>
+      <Text style={styles.sectionEnLabel}>{enLabel}</Text>
+    </View>
+  );
 }
 
 export function ScannerScreen({ navigation }: Props) {
@@ -44,6 +67,9 @@ export function ScannerScreen({ navigation }: Props) {
   const { state, devices, error, start } = useScanner();
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // 已连接探针（当前扫描流程不跟踪连接态，预留为 null）
+  const connectedDevice: ScannedDevice | null = null;
 
   useEffect(() => {
     if (state === 'scanning') {
@@ -59,10 +85,9 @@ export function ScannerScreen({ navigation }: Props) {
   }, [state]);
 
   const openDevice = (device: ScannedDevice) => {
-    navigation.navigate(device.protocol === 'smart-pot' ? 'SmartPotDetail' : 'SensorDetail', {
-      deviceId: device.id,
-      deviceName: device.name,
-    });
+    // 加入看板并返回 Dashboard（Dashboard 统一管理连接与轮询）
+    dashboardManager.add(device);
+    navigation.goBack();
   };
 
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
@@ -73,11 +98,11 @@ export function ScannerScreen({ navigation }: Props) {
       {/* App top navigation bar */}
       <View style={[styles.navBar, { paddingTop: 12 + insets.top }]}>
         <View>
-          <Text style={styles.title}>Soil Sensor</Text>
-          <Text style={styles.subtitle}>Soil Sensor 与 SmartPot</Text>
+          <Text style={styles.title}>Add Device</Text>
+          <Text style={styles.subtitle}>Nearby devices</Text>
         </View>
         <View style={styles.navIcon}>
-          <Text style={styles.navIconText}>⌁</Text>
+          <BluetoothIcon size={18} />
         </View>
       </View>
 
@@ -89,40 +114,69 @@ export function ScannerScreen({ navigation }: Props) {
             <View>
               <Text style={styles.bannerTitle}>
                 {state === 'scanning'
-                  ? '扫描中…'
+                  ? 'Scanning...'
                   : state === 'stopped'
-                    ? '扫描结束（30s 超时）'
+                    ? 'Scan finished (30s timeout)'
                     : state === 'error'
-                      ? `扫描出错：${error ?? ''}`
-                      : '准备扫描'}
+                      ? `Scan error: ${error ?? ''}`
+                      : 'Ready to scan'}
               </Text>
               <Text style={styles.bannerMeta}>
-                {state === 'scanning' ? `${mm}:${ss} / ${TIMEOUT}s 超时` : '点击重新扫描开始'}
+                {state === 'scanning'
+                  ? `${mm}:${ss} / ${TIMEOUT}s Timeout`
+                  : 'Tap rescan to start'}
               </Text>
             </View>
           </View>
           {state === 'scanning' ? <Spinner /> : null}
         </View>
 
-        <Text style={styles.listLabel}>已发现设备（{devices.length}）</Text>
+        {/* Connected devices */}
+        {connectedDevice ? (
+          <View style={styles.section}>
+            <SectionHeader
+              accentColor={colors.statusProven}
+              label={`Connected devices (${1})`}
+              enLabel="CONNECTED PROBE"
+            />
+            <ConnectedCard
+              device={connectedDevice}
+              onPress={() => openDevice(connectedDevice)}
+            />
+          </View>
+        ) : null}
 
-        {devices.length === 0 ? (
-          <Text style={styles.empty}>
-            {state === 'scanning'
-              ? '未发现设备。设备可能处于休眠状态，请靠近传感器并按下外壳顶部的唤醒按钮。'
-              : '点击重新扫描开始。'}
-          </Text>
-        ) : (
-          devices.map((device) => (
-            <DeviceCard key={device.id} device={device} onPress={() => openDevice(device)} />
-          ))
-        )}
+        {/* Available peripherals */}
+        <View style={styles.section}>
+          <SectionHeader
+            accentColor={colors.outline}
+            label={`Available peripherals (${devices.length})`}
+            enLabel="AVAILABLE PERIPHERALS"
+          />
+
+          {devices.length === 0 ? (
+            <Text style={styles.empty}>
+              {state === 'scanning'
+                ? 'No devices found. The device may be asleep — move closer and press the wake button on the top of the housing.'
+                : 'Tap rescan to start.'}
+            </Text>
+          ) : (
+            devices.map((device) => (
+              <AvailableCard
+                key={device.id}
+                device={device}
+                onPress={() => openDevice(device)}
+              />
+            ))
+          )}
+        </View>
 
         {/* Troubleshooting footnote */}
         <View style={styles.footnote}>
           <Text style={styles.footnoteIcon}>?</Text>
           <Text style={styles.footnoteText}>
-            未发现设备？设备可能处于休眠状态，请靠近传感器并按下外壳顶部的唤醒按钮。
+            No devices found? The device may be asleep — move closer and press the wake button on
+            the top of the housing.
           </Text>
         </View>
       </ScrollView>
@@ -144,7 +198,7 @@ export function ScannerScreen({ navigation }: Props) {
               state === 'scanning' ? styles.rescanTextDisabled : styles.rescanTextActive,
             ]}
           >
-            {state === 'scanning' ? '重新扫描（锁定中）' : '重新扫描'}
+            {state === 'scanning' ? 'Rescan (locked)' : 'Rescan'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -152,7 +206,7 @@ export function ScannerScreen({ navigation }: Props) {
   );
 }
 
-function PingDot({ active }: { active: boolean }) {
+function PingDot({ active, color = colors.statusIdeas }: { active: boolean; color?: string }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -173,13 +227,13 @@ function PingDot({ active }: { active: boolean }) {
   }, [active, anim]);
 
   const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 2.4] });
-  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0] });
+  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.2, 0] });
 
   return (
     <View style={styles.pulseWrap}>
-      {active ? <Animated.View style={[styles.ping, { opacity, transform: [{ scale }] }]} /> : null}
+      {active ? <Animated.View style={[styles.ping, { backgroundColor: color, opacity, transform: [{ scale }] }]} /> : null}
       <View
-        style={[styles.pulseDot, active ? styles.pulseDotActive : styles.pulseDotIdle]}
+        style={[styles.pulseDot, active ? { backgroundColor: color } : styles.pulseDotIdle]}
       />
     </View>
   );
@@ -204,17 +258,87 @@ function Spinner() {
   const rotate = anim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
 
   return (
-    <Animated.Text style={[styles.bannerSpinner, { transform: [{ rotate }] }]}>⟳</Animated.Text>
+    <Animated.View style={{ transform: [{ rotate }] }}>
+      <AutorenewIcon size={20} />
+    </Animated.View>
   );
 }
 
-function DeviceCard({ device, onPress }: { device: ScannedDevice; onPress: () => void }) {
+function MetricCell({
+  label,
+  value,
+  valueStyle,
+}: {
+  label: string;
+  value: string;
+  valueStyle?: object;
+}) {
+  return (
+    <View style={styles.metricCell}>
+      <Text style={styles.metricLabel}>{label}</Text>
+      <Text style={[styles.metricValue, valueStyle]}>{value}</Text>
+    </View>
+  );
+}
+
+function ConnectedCard({
+  device,
+  onPress,
+}: {
+  device: ScannedDevice;
+  onPress: () => void;
+}) {
+  const sig = signalInfo(device.rssi);
+  return (
+    <TouchableOpacity style={styles.connectedCard} onPress={onPress}>
+      <View style={styles.deviceHeader}>
+        <View style={styles.deviceTitleWrap}>
+          <PingDot active color={colors.statusProven} />
+          <Text style={styles.connectedName}>{device.name}</Text>
+        </View>
+        <View style={styles.pollingBadge}>
+          <Text style={styles.pollingBadgeText}>3s polling (3s POLLING)</Text>
+        </View>
+      </View>
+
+      <View style={styles.metricGrid}>
+        <MetricCell
+          label="RSSI"
+          value={`${device.rssi} dBm`}
+          valueStyle={[styles.metricValueStrong, { color: sig.rssiColor }]}
+        />
+        <MetricCell label="Signal" value={`${sig.bars} bars (${sig.label})`} />
+        <MetricCell
+          label="Battery"
+          value="--"
+          valueStyle={styles.metricValueMuted}
+        />
+      </View>
+
+      <View style={styles.connectedFooter}>
+        <Text style={styles.mac}>MAC: {device.id}</Text>
+        <View style={styles.manageLink}>
+          <Text style={styles.manageLinkText}>Manage / Details</Text>
+          <Text style={styles.manageChevron}>›</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function AvailableCard({
+  device,
+  onPress,
+}: {
+  device: ScannedDevice;
+  onPress: () => void;
+}) {
   const sig = signalInfo(device.rssi);
   const resolving = !device.name;
 
   return (
     <TouchableOpacity
-      style={[styles.deviceCard, resolving && styles.deviceCardResolving]}
+      style={[styles.availableCard, resolving && styles.availableCardResolving]}
       onPress={onPress}
     >
       <View style={styles.deviceHeader}>
@@ -226,45 +350,53 @@ function DeviceCard({ device, onPress }: { device: ScannedDevice; onPress: () =>
             ]}
           />
           <Text style={[styles.deviceName, resolving && styles.deviceNameResolving]}>
-            {device.name ?? '名称解析中…'}
+            {device.name ?? 'Resolving name…'}
           </Text>
         </View>
         <Text
-          style={[styles.deviceState, resolving ? styles.deviceStateResolving : styles.deviceStateIdle]}
+          style={[
+            styles.deviceState,
+            resolving ? styles.deviceStateResolving : styles.deviceStateIdle,
+          ]}
         >
-          {resolving ? '解析 GATT…' : device.protocol === 'smart-pot' ? 'SmartPot' : 'Soil Sensor'}
+          {resolving
+            ? 'Resolving GATT…'
+            : device.protocol === 'smart-pot'
+              ? 'SmartPot'
+              : 'Ready'}
         </Text>
       </View>
 
       <View style={styles.metricGrid}>
-        <View style={styles.metricCell}>
-          <Text style={styles.metricLabel}>RSSI</Text>
-          <Text
-            style={[
-              styles.metricValue,
-              styles.metricValueStrong,
-              { color: resolving ? colors.statusFeasibility : sig.rssiColor },
-            ]}
-          >
-            {device.rssi} dBm
-          </Text>
-        </View>
-        <View style={styles.metricCell}>
-          <Text style={styles.metricLabel}>信号等级</Text>
-          <Text style={[styles.metricValue, { color: resolving ? colors.secondary : sig.color }]}>
-            {sig.bars} 格（{sig.label}）
-          </Text>
-        </View>
-        <View style={styles.metricCell}>
-          <Text style={styles.metricLabel}>电量</Text>
-          <Text style={[styles.metricValue, resolving && styles.metricValueMuted]}>--</Text>
-        </View>
+        <MetricCell
+          label="RSSI"
+          value={`${device.rssi} dBm`}
+          valueStyle={[
+            styles.metricValueStrong,
+            { color: resolving ? colors.statusFeasibility : sig.rssiColor },
+          ]}
+        />
+        <MetricCell
+          label="Signal"
+          value={`${sig.bars} bars (${sig.label})`}
+          valueStyle={{ color: resolving ? colors.secondary : sig.color }}
+        />
+        <MetricCell
+          label="Battery"
+          value="--"
+          valueStyle={resolving ? styles.metricValueMuted : styles.metricValueStrong}
+        />
       </View>
 
       {!resolving ? (
-        <View style={styles.deviceFooter}>
+        <View style={styles.availableFooter}>
           <Text style={styles.mac}>MAC: {device.id}</Text>
-          <Text style={styles.pairLink}>点击配对 ›</Text>
+          <View style={styles.pairLink}>
+            <Text style={styles.pairLinkText}>
+              {device.protocol === 'smart-pot' ? 'View details' : 'Pair & Connect'}
+            </Text>
+            <Text style={styles.pairArrow}>›</Text>
+          </View>
         </View>
       ) : null}
     </TouchableOpacity>
@@ -291,19 +423,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navIconText: { color: colors.statusIdeas, fontSize: 18 },
   title: { fontSize: 18, fontWeight: '700', color: colors.onSurface },
   subtitle: { fontSize: 11, letterSpacing: 0.6, color: colors.onSurfaceVariant, marginTop: 2 },
-  banner: {
+banner: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.surfaceHigh,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 12,
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  bannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  bannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   pulseWrap: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
   ping: {
     position: 'absolute',
@@ -313,28 +444,83 @@ const styles = StyleSheet.create({
     backgroundColor: colors.statusIdeas,
   },
   pulseDot: { width: 12, height: 12, borderRadius: 6 },
-  pulseDotActive: { backgroundColor: colors.statusIdeas },
   pulseDotIdle: { backgroundColor: colors.outline },
   bannerTitle: { fontSize: 13, color: colors.onSurface, fontWeight: '600' },
-  bannerMeta: { fontSize: 11, letterSpacing: 0.4, color: colors.statusIdeas, marginTop: 2 },
-  bannerSpinner: { fontSize: 20, color: colors.statusIdeas },
-  listLabel: {
+  bannerMeta: {
     fontSize: 11,
     letterSpacing: 0.6,
-    color: colors.outline,
-    textTransform: 'uppercase',
+    color: colors.statusIdeas,
+    marginTop: 2,
+    fontWeight: '700',
+  },
+  section: { marginTop: 2, marginBottom: 4 },  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  deviceCard: {
-    backgroundColor: colors.surfaceContainer,
+  sectionHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  sectionAccent: { width: 6, height: 14, borderRadius: 3 },
+  sectionLabel: {
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    fontWeight: '700',
+    color: colors.onSurfaceVariant,
+  },
+  sectionEnLabel: {
+    fontSize: 10,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.outline,
+  },
+  connectedCard: {
+    backgroundColor: colors.surfaceHigh,
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    padding: 16,
     borderWidth: 1,
     borderColor: colors.surfaceHigh,
     gap: 10,
   },
-  deviceCardResolving: { opacity: 0.75 },
+  connectedName: { fontSize: 15, color: colors.onSurface, fontWeight: '700' },
+  pollingBadge: {
+    backgroundColor: 'rgba(56, 211, 159, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+  pollingBadgeText: {
+    fontSize: 10,
+    letterSpacing: 0.4,
+    color: colors.statusProven,
+    fontWeight: '700',
+  },
+  connectedFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 2,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceHigh,
+  },
+  manageLink: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  manageLinkText: {
+    fontSize: 11,
+    letterSpacing: 0.4,
+    color: colors.statusIdeas,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  manageChevron: { fontSize: 15, color: colors.statusIdeas, fontWeight: '700' },
+  availableCard: {
+    backgroundColor: colors.surfaceLow,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    gap: 10,
+  },
+  availableCardResolving: { opacity: 0.75 },
   deviceHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   deviceTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   deviceDot: { width: 10, height: 10, borderRadius: 5 },
@@ -361,13 +547,21 @@ const styles = StyleSheet.create({
   metricValue: { fontSize: 12, color: colors.onSurface },
   metricValueStrong: { fontWeight: '700' },
   metricValueMuted: { color: colors.secondary },
-  deviceFooter: {
+  availableFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   mac: { fontSize: 11, color: colors.onSurfaceVariant, fontFamily: 'monospace' },
-  pairLink: { fontSize: 11, letterSpacing: 0.4, color: colors.statusIdeas, fontWeight: '700' },
+  pairLink: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  pairLinkText: {
+    fontSize: 11,
+    letterSpacing: 0.4,
+    color: colors.statusIdeas,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  pairArrow: { fontSize: 14, color: colors.statusIdeas, fontWeight: '700' },
   empty: { color: colors.onSurfaceVariant, textAlign: 'center', marginTop: 16, lineHeight: 20 },
   footnote: {
     flexDirection: 'row',

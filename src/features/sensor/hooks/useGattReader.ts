@@ -62,7 +62,7 @@ export function useGattReader() {
         connection: {
           ...s.connection,
           state: 'error',
-          error: e instanceof Error ? e.message : '读取失败',
+          error: e instanceof Error ? e.message : 'Read failed',
         },
       }));
     }
@@ -98,7 +98,7 @@ export function useGattReader() {
       } catch (e) {
         setConnection({
           state: 'error',
-          error: e instanceof Error ? e.message : '连接失败',
+          error: e instanceof Error ? e.message : 'Connection failed',
         });
         deviceRef.current = null;
       }

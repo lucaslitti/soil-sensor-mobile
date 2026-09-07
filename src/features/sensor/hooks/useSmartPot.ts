@@ -29,7 +29,7 @@ export function useSmartPot() {
       setConnection(current => ({ ...current, state: 'reading', error: null }));
     } catch (error) {
       stopTimer();
-      setConnection(current => ({ ...current, state: 'error', error: error instanceof Error ? error.message : '读取失败' }));
+      setConnection(current => ({ ...current, state: 'error', error: error instanceof Error ? error.message : 'Read failed' }));
     } finally {
       refreshingRef.current = false;
       setRefreshing(false);
@@ -53,7 +53,7 @@ export function useSmartPot() {
       await refresh();
       timerRef.current = setInterval(refresh, 2000);
     } catch (error) {
-      setConnection({ state: 'error', deviceId, deviceName, error: error instanceof Error ? error.message : '连接失败' });
+      setConnection({ state: 'error', deviceId, deviceName, error: error instanceof Error ? error.message : 'Connection failed' });
     }
   }, [disconnect, refresh]);
 

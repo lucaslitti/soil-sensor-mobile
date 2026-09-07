@@ -21,8 +21,8 @@ export function SettingsScreen({ navigation }: Props) {
           <Text style={styles.navBtnText}>‹</Text>
         </TouchableOpacity>
         <View style={styles.navTitleWrap}>
-          <Text style={styles.navTitle}>设置与校准</Text>
-          <Text style={styles.navSubtitle}>预留通道 & 参数</Text>
+          <Text style={styles.navTitle}>Settings & Calibration</Text>
+          <Text style={styles.navSubtitle}>Reserved channel & parameters</Text>
         </View>
         <View style={styles.navBtn} />
       </View>
@@ -35,46 +35,47 @@ export function SettingsScreen({ navigation }: Props) {
         <View style={styles.notice}>
           <Text style={styles.noticeIcon}>!</Text>
           <Text style={styles.noticeText}>
-            <Text style={styles.noticeStrong}>注意：</Text>当前固件版本 v1.2.0。部分高级校准与离线聚合
-            功能将在下一代固件 OTA 更新中开放。
+            <Text style={styles.noticeStrong}>Note:</Text> Current firmware v1.2.0. Some advanced
+            calibration and offline aggregation features will be enabled in the next firmware OTA
+            update.
           </Text>
         </View>
 
         {/* Threshold alarms */}
-        <Group label="阈值报警配置 (Thresholds)">
+        <Group label="Threshold Alarms">
           <View style={styles.card}>
             <Row
-              title="湿度下限报警 (<15%)"
-              subtitle="触发土壤缺水推送"
+              title="Moisture low alarm (<15%)"
+              subtitle="Trigger soil dry-out notification"
               right={<Switch value={moistureAlarm} onValueChange={setMoistureAlarm} trackColor={{ true: colors.statusIdeas, false: colors.surfaceHighest }} thumbColor={moistureAlarm ? colors.onPrimary : colors.outline} />}
             />
             <View style={styles.divider} />
             <Row
-              title="EC 盐分超标报警 (>2.5 mS/cm)"
-              subtitle="防止烧根与施肥过度"
+              title="EC excess alarm (>2.5 mS/cm)"
+              subtitle="Prevent root burn and over-fertilizing"
               right={<Switch value={ecAlarm} onValueChange={setEcAlarm} trackColor={{ true: colors.statusIdeas, false: colors.surfaceHighest }} thumbColor={ecAlarm ? colors.onPrimary : colors.outline} />}
             />
           </View>
         </Group>
 
         {/* Units */}
-        <Group label="计量单位偏好 (Units)">
+        <Group label="Unit Preference">
           <View style={styles.card}>
             <Row
-              title="温度单位切换"
+              title="Temperature unit"
               right={
                 <View style={styles.segmented}>
                   <TouchableOpacity
                     style={[styles.segBtn, unit === 'c' && styles.segBtnActive]}
                     onPress={() => setUnit('c')}
                   >
-                    <Text style={[styles.segText, unit === 'c' && styles.segTextActive]}>℃ 摄氏</Text>
+                    <Text style={[styles.segText, unit === 'c' && styles.segTextActive]}>℃ Celsius</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.segBtn, unit === 'f' && styles.segBtnActive]}
                     onPress={() => setUnit('f')}
                   >
-                    <Text style={[styles.segText, unit === 'f' && styles.segTextActive]}>℉ 华氏</Text>
+                    <Text style={[styles.segText, unit === 'f' && styles.segTextActive]}>℉ Fahrenheit</Text>
                   </TouchableOpacity>
                 </View>
               }
@@ -83,34 +84,34 @@ export function SettingsScreen({ navigation }: Props) {
         </Group>
 
         {/* Flash cache */}
-        <Group label="本机存储管理 (Flash Cache)">
+        <Group label="On-Device Storage (Flash Cache)">
           <View style={styles.card}>
             <Row
-              title="清理传感器本机缓存"
-              subtitle="释放 512KB 环形 Flash 记录"
+              title="Clear on-device cache"
+              subtitle="Frees the 512KB ring Flash records"
               right={
                 <TouchableOpacity style={styles.dangerBtn}>
-                  <Text style={styles.dangerText}>清空缓存</Text>
+                  <Text style={styles.dangerText}>Clear Cache</Text>
                 </TouchableOpacity>
               }
             />
             <View style={styles.divider} />
             <Row
-              title="导出 CSV 格式日志 (预留)"
-              subtitle="即将支持 OTA 批处理导出"
-              right={<Text style={styles.reservedTag}>V2.0 预留</Text>}
+              title="Export CSV logs (reserved)"
+              subtitle="OTA batch export coming soon"
+              right={<Text style={styles.reservedTag}>V2.0 Reserved</Text>}
               dimmed
             />
           </View>
         </Group>
 
         {/* Firmware spec */}
-        <Group label="固件与通讯协议" last>
+        <Group label="Firmware & Protocol" last>
           <View style={styles.specCard}>
-            <SpecRow label="MAC 地址" value="E4:5F:01:9A:42:C8" />
-            <SpecRow label="广播频率" value="3.0 秒 (BLE GATT 0x181A)" />
-            <SpecRow label="SoC 型号" value="Nordic nRF52840-QIAA" />
-            <SpecRow label="校准版本" value="CAL-V3-SILT-LOAM" accent />
+            <SpecRow label="MAC Address" value="E4:5F:01:9A:42:C8" />
+            <SpecRow label="Broadcast Rate" value="3.0s (BLE GATT 0x181A)" />
+            <SpecRow label="SoC Model" value="Nordic nRF52840-QIAA" />
+            <SpecRow label="Calibration" value="CAL-V3-SILT-LOAM" accent />
           </View>
         </Group>
       </ScrollView>

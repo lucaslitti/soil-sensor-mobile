@@ -20,8 +20,8 @@ describe('validateSmartPotConfig', () => {
   });
 
   it('rejects invalid thresholds and care windows', () => {
-    expect(validateSmartPotConfig('l=50,h=35')).toBe('浇水阈值需满足 l < h');
-    expect(validateSmartPotConfig('d=0')).toBe('浇水时长和间隔必须大于 0');
-    expect(validateSmartPotConfig('ace=1,cs=18:00,ce=08:00')).toBe('启用照护时段时，cs 和 ce 必须为递增的 HH:MM');
+    expect(validateSmartPotConfig('l=50,h=35')).toBe('Watering thresholds must satisfy l < h');
+    expect(validateSmartPotConfig('d=0')).toBe('Watering duration and interval must be greater than 0');
+    expect(validateSmartPotConfig('ace=1,cs=18:00,ce=08:00')).toBe('When care time is enabled, cs and ce must be increasing HH:MM values');
   });
 });

@@ -1,0 +1,627 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&amp;family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-primary":"#2f3300","on-primary-container":"#636900","surface-container":"#1e2022","inverse-on-surface":"#303032","status-ideas":"#d4e128","secondary-container":"#48494b","surface-bright":"#38393b","on-tertiary-fixed-variant":"#00513a","error":"#ffb4ab","status-proven":"#38d39f","tertiary-fixed":"#6afbc5","primary-container":"#e0ec35","on-secondary-container":"#b9b8ba","surface-container-low":"#1a1c1d","inverse-primary":"#5d6300","on-tertiary-container":"#007353","surface":"#121315","tertiary":"#ffffff","tertiary-fixed-dim":"#48deaa","on-surface-variant":"#c8c8ad","status-feasibility":"#e69b38","primary-fixed":"#e0ec35","on-surface":"#e3e2e4","on-tertiary":"#003827","on-secondary-fixed":"#1b1c1d","surface-container-highest":"#343537","on-background":"#e3e2e4","secondary":"#c7c6c8","on-error":"#690005","on-secondary-fixed-variant":"#464748","status-active":"#3fa9f5","secondary-fixed-dim":"#c7c6c8","on-tertiary-fixed":"#002115","surface-tint":"#c4d00b","on-primary-fixed-variant":"#464a00","on-secondary":"#303032","secondary-fixed":"#e3e2e4","surface-container-lowest":"#0d0e10","primary":"#ffffff","tertiary-container":"#6afbc5","surface-variant":"#343537","surface-dim":"#121315","outline-variant":"#474834","error-container":"#93000a","outline":"#92927a","surface-container-high":"#292a2c","on-primary-fixed":"#1b1d00","inverse-surface":"#e3e2e4","on-error-container":"#ffdad6","background":"#121315","primary-fixed-dim":"#c4d00b"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-4xl":"6rem","space-2xs":"0.25rem","gutter-tablet":"1rem","container-max":"1320px","space-sm":"0.75rem","space-xl":"2rem","margin-mobile":"1rem","gutter-desktop":"1.5rem","space-2xl":"3rem","gutter-mobile":"0.75rem","margin-desktop":"2rem","space-3xl":"4rem","space-md":"1rem","space-xs":"0.5rem","margin-tablet":"1.5rem","space-lg":"1.5rem"},"fontFamily":{"headline-md":["DM Sans"],"display-hero-mobile":["DM Sans"],"label-lg":["DM Sans"],"display-hero":["DM Sans"],"label-md":["DM Sans"],"label-caps":["DM Sans"],"body-md":["Inter"],"stat-metric":["DM Sans"],"headline-lg-mobile":["DM Sans"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-lg":["DM Sans"],"headline-sm":["DM Sans"]},"fontSize":{"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["34px",{"lineHeight":"42px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-lg":["15px",{"lineHeight":"20px","fontWeight":"700"}],"display-hero":["56px",{"lineHeight":"64px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["13px",{"lineHeight":"16px","fontWeight":"600"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"stat-metric":["64px",{"lineHeight":"64px","letterSpacing":"-0.03em","fontWeight":"800"}],"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["36px",{"lineHeight":"44px","letterSpacing":"-0.015em","fontWeight":"700"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"700"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-lg"><div class="px-space-lg flex items-center gap-space-sm"><div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-status-ideas text-[22px]">sensors</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">TERRA//SPEC</span><span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mt-space-2xs">Telemetry UI Library</span></div></div><nav class="flex flex-col gap-space-2xs px-space-md" data-active-classes="bg-surface-container-high text-status-ideas font-label-md"><div class="px-space-sm pt-space-xs pb-space-2xs font-label-caps text-label-caps uppercase text-outline tracking-wider">App Prototypes</div><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="mobile-screen-scanner" href="#"><span class="material-symbols-outlined text-[18px]">bluetooth_searching</span>BLE Scanner Screen</a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="mobile-screen-detail" href="#"><span class="material-symbols-outlined text-[18px]">vital_signs</span>Sensor Telemetry Screen</a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="mobile-screen-settings" href="#"><span class="material-symbols-outlined text-[18px]">tune</span>Device Config Screen</a><div class="px-space-sm pt-space-md pb-space-2xs font-label-caps text-label-caps uppercase text-outline tracking-wider">Design Spec</div><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="design-tokens" href="#"><span class="material-symbols-outlined text-[18px]">palette</span>Color &amp; Type Tokens</a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="telemetry-components" href="#"><span class="material-symbols-outlined text-[18px]">speed</span>Telemetry Gauges &amp; Charts</a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="atomic-components" href="#"><span class="material-symbols-outlined text-[18px]">widgets</span>Cards, Chips &amp; Controls</a><a class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="interaction-guidelines" href="#"><span class="material-symbols-outlined text-[18px]">touch_app</span>GATT States &amp; Pipeline</a></nav></div><div class="px-space-lg"><div class="p-space-md rounded-lg bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><span class="font-label-caps text-label-caps uppercase text-on-surface-variant">BLE Stack</span><span class="font-label-caps text-label-caps text-status-proven bg-surface-container-high px-space-xs py-space-2xs rounded-full">v4.2 PRO</span></div><div class="font-body-sm text-body-sm text-secondary">Nordic nRF52840 SoC / Soil Profiler V3</div></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 flex items-center justify-between px-space-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-status-ideas animate-pulse"></span><span class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Industrial Design Spec</span></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">schedule</span><span class="font-label-md text-label-md">Telemetry Cycle: 250ms</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-surface w-full min-h-screen px-space-xl py-space-xl"><div class="flex flex-col w-full">
+<!-- Top Telemetry Protocol Ribbon -->
+<div class="w-full flex flex-wrap items-center justify-between gap-space-md py-space-sm mb-space-lg">
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-2xs bg-surface-container-high px-space-md py-space-2xs rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-status-ideas animate-ping"></span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface tracking-wider">BLE GATT ARCHITECTURE</span>
+</div>
+<div class="flex items-center gap-space-2xs bg-surface-container px-space-sm py-space-2xs rounded-full">
+<span class="material-symbols-outlined text-[15px] text-status-proven">sync</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Polling Cadence: <strong class="text-on-surface font-label-md">3.00s Interval</strong></span>
+</div>
+<div class="flex items-center gap-space-2xs bg-surface-container px-space-sm py-space-2xs rounded-full">
+<span class="material-symbols-outlined text-[15px] text-status-active">memory</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">nRF52840 Soil Profiler V3</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-widest">Protocol Spec:</span>
+<span class="font-label-caps text-label-caps text-status-ideas bg-surface-container-high px-space-xs py-space-2xs rounded-full font-bold">SOIL-SPEC-2025.R2</span>
+</div>
+</div>
+<!-- Hero Header Section with High-Impact Typography & Metadata Grid -->
+<section class="w-full mb-space-3xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+<div class="lg:col-span-8 flex flex-col">
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="w-1.5 h-6 bg-status-ideas rounded-full"></span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest text-status-ideas">INDUSTRIAL TELEMETRY DESIGN SYSTEM</span>
+</div>
+<h1 class="font-display-hero text-display-hero text-on-surface tracking-tight leading-none mb-space-md">
+          SOIL SENSOR <span class="text-status-ideas">TELEMETRY</span>
+</h1>
+<p class="font-body-lg text-body-lg text-secondary max-w-3xl leading-relaxed">
+          High-voltage digital monitoring suite engineered for subsurface agrotechnics, moisture saturation profiling, thermal gradient analytics, and precision electrical conductivity (EC) via low-energy BLE GATT pipelines.
+        </p>
+<!-- Spec Badges Cluster -->
+<div class="flex flex-wrap gap-space-sm mt-space-lg">
+<div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-full">
+<span class="material-symbols-outlined text-status-ideas text-[18px]">cell_tower</span>
+<span class="font-label-md text-label-md text-on-surface">Sub-GHz &amp; BLE 5.2 Dual Radio</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-full">
+<span class="material-symbols-outlined text-status-proven text-[18px]">verified</span>
+<span class="font-label-md text-label-md text-on-surface">±0.05 mS/cm EC Precision Calibrated</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-full">
+<span class="material-symbols-outlined text-status-feasibility text-[18px]">bolt</span>
+<span class="font-label-md text-label-md text-on-surface">3-Tier Historical Buffer (L0/L1/L2)</span>
+</div>
+</div>
+</div>
+<!-- Quick Metrics Telemetry Card -->
+<div class="lg:col-span-4 bg-surface-container rounded-xl p-space-lg shadow-xl">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Pipeline Status</span>
+<span class="font-label-caps text-label-caps text-status-proven bg-surface-container-high px-space-xs py-space-2xs rounded-full">ACTIVE STREAM</span>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline uppercase">Active Probes</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">14<span class="text-status-ideas text-[16px]">/16</span></span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline uppercase">Packet Loss</span>
+<span class="font-headline-md text-headline-md text-status-proven font-bold">0.02%</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline uppercase">Scan Timeout</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">30.0s</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline uppercase">GATT Latency</span>
+<span class="font-headline-md text-headline-md text-status-ideas font-bold">18ms</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section Divider: Three Mobile App Screens Showcase -->
+<div class="flex items-center justify-between mb-space-xl">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-status-ideas">
+<span class="material-symbols-outlined text-[20px]">phone_iphone</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Mobile Application Screens Showcase</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time mobile experience executing BLE scanner, telemetry dashboards, and hardware configurations.</p>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-status-ideas"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Interactive Prototype View</span>
+</div>
+</div>
+<!-- Triple Device Mockup Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-xl mb-space-4xl">
+<!-- ==============================================
+         SCREEN 1: SCANNER SCREEN (BLE DISCOVERY)
+         ============================================== -->
+<div class="flex flex-col items-center">
+<div class="flex items-center justify-between w-full max-w-[390px] mb-space-xs px-space-xs">
+<span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider">Screen 01 // BLE DISCOVERY</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">BLE DISCOVERY</span>
+</div>
+<!-- Industrial Handheld Chassis -->
+<div class="w-full max-w-[390px] bg-surface-container-lowest rounded-xl p-space-xs shadow-2xl relative overflow-hidden">
+<!-- Bezel Inner Shell -->
+<div class="w-full bg-surface rounded-lg overflow-hidden flex flex-col min-h-[740px]">
+<!-- Screen Notch / Status Area -->
+<div class="flex items-center justify-between px-space-md pt-space-xs pb-space-2xs bg-surface-container-low text-on-surface-variant font-label-caps text-[10px]">
+<span class="">09:41</span>
+<div class="w-20 h-3 bg-surface-container-highest rounded-full mx-auto"></div>
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px]">bluetooth</span>
+<span class="material-symbols-outlined text-[13px]">wifi</span>
+<span class="material-symbols-outlined text-[13px]">battery_charging_90</span>
+</div>
+</div>
+<!-- App Mobile Navigation Bar -->
+<div class="px-space-md py-space-sm flex items-center justify-between bg-surface-container-low">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Soil Sensor</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Nearby Devices (Prefix: Soil Sensor-)</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-status-ideas">
+<span class="material-symbols-outlined text-[18px]">bluetooth_searching</span>
+</div>
+</div>
+<!-- Content Scrollable Body -->
+<div class="flex flex-col gap-space-sm p-space-md flex-1">
+<!-- Scanning Status Banner -->
+<div class="p-space-sm rounded-lg bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative flex items-center justify-center w-6 h-6">
+<span class="absolute w-6 h-6 rounded-full bg-status-ideas/20 animate-ping"></span>
+<span class="w-3 h-3 rounded-full bg-status-ideas"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Scanning...</span>
+<span class="font-label-caps text-label-caps text-status-ideas">00:14 / 30s Timeout</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[20px] text-status-ideas animate-spin">autorenew</span>
+</div>
+<div class="flex flex-col gap-space-2xs mt-space-2xs"><div class="flex items-center justify-between"><span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-status-ideas animate-pulse"></span> CONNECTED PROBE (1)</span><span class="font-label-caps text-[10px] text-status-proven uppercase font-bold bg-status-proven/15 px-space-xs py-0.5 rounded-full">ACTIVE LINK</span></div></div>
+<!-- Device Card A: Connecting State -->
+<div class="bg-surface-container-high p-space-md rounded-lg flex flex-col gap-space-xs transition-all shadow-md"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-proven opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-proven"></span></span><span class="font-label-lg text-label-lg text-on-surface font-bold">Soil Sensor-9A42</span></div><span class="font-label-caps text-[10px] text-status-proven bg-status-proven/20 px-space-xs py-0.5 rounded-full font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">sync</span> 3s POLLING</span></div><div class="grid grid-cols-3 gap-space-2xs mt-space-2xs"><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase">RSSI</span><span class="font-label-md text-label-md text-status-proven font-bold">-52 dBm</span></div><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase">Signal</span><span class="font-label-md text-label-md text-on-surface">5 Bars (Full)</span></div><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase">Battery</span><span class="font-label-md text-label-md text-status-ideas font-bold">92%</span></div></div><div class="flex items-center justify-between mt-space-2xs pt-space-2xs"><span class="font-body-sm text-[11px] text-on-surface-variant font-mono truncate">MAC: E4:5F:01:9A:42:C8</span><button class="font-label-caps text-[11px] text-status-ideas font-bold uppercase hover:text-status-ideas flex items-center gap-0.5 tracking-wide">Manage &gt;</button></div></div>
+<!-- Device Card B: Idle State -->
+<div class="flex items-center justify-between pt-space-xs"><span class="font-label-caps text-label-caps text-outline uppercase tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span> AVAILABLE PERIPHERALS (2)</span><span class="font-label-caps text-[10px] text-outline uppercase">RSSI DESCENDING</span></div><div class="bg-surface-container-low hover:bg-surface-container p-space-md rounded-lg flex flex-col gap-space-xs transition-all"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="w-2.5 h-2.5 rounded-full bg-secondary"></div><span class="font-label-lg text-label-lg text-on-surface">Soil Sensor-3F1B</span></div><span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-high px-space-xs py-space-2xs rounded-full">Ready</span></div><div class="grid grid-cols-3 gap-space-2xs mt-space-2xs"><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-label-caps text-outline">RSSI</span><span class="font-label-md text-label-md text-on-surface font-bold">-74 dBm</span></div><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-label-caps text-outline">Signal</span><span class="font-label-md text-label-md text-on-surface">3 Bars (Good)</span></div><div class="bg-surface-container p-space-2xs rounded flex flex-col"><span class="font-label-caps text-label-caps text-outline">Battery</span><span class="font-label-md text-label-md text-on-surface">78%</span></div></div><div class="flex items-center justify-between mt-space-2xs pt-space-2xs"><span class="font-body-sm text-[11px] text-on-surface-variant font-mono truncate">MAC: E4:5F:01:3F:18:77</span><button class="font-label-caps text-label-caps text-status-ideas font-bold uppercase tracking-wide">Pair &amp; Connect &gt;</button></div></div>
+<!-- Device Card C: Resolving Name Placeholder -->
+<div class="bg-surface-container-low opacity-75 p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-2.5 h-2.5 rounded-full bg-outline"></div>
+<span class="font-label-lg text-label-lg text-on-surface-variant italic">Resolving Name...</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline bg-surface-container-high px-space-xs py-space-2xs rounded-full">PARSING GATT...</span>
+</div>
+<div class="grid grid-cols-3 gap-space-2xs mt-space-2xs">
+<div class="bg-surface-container p-space-2xs rounded flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">RSSI</span>
+<span class="font-label-md text-label-md text-status-feasibility font-bold">-88 dBm</span>
+</div>
+<div class="bg-surface-container p-space-2xs rounded flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">Signal</span>
+<span class="font-label-md text-label-md text-secondary">2 Bars (Weak)</span>
+</div>
+<div class="bg-surface-container p-space-2xs rounded flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">Battery</span>
+<span class="font-label-md text-label-md text-secondary">--</span>
+</div>
+</div>
+</div>
+<!-- Troubleshooting Alert Footnote -->
+<div class="mt-auto bg-surface-container p-space-sm rounded-lg flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-status-feasibility mt-0.5">help</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Device not showing? It may be in low-power sleep mode. Please bring the phone closer and press the wake button on top of the sensor probe.
+              </p>
+</div>
+</div>
+<!-- Bottom Action Drawer Button -->
+<div class="p-space-md bg-surface-container-low">
+<button class="w-full py-space-sm px-space-md rounded-full bg-surface-container-high text-secondary cursor-not-allowed font-label-lg text-label-lg flex items-center justify-center gap-space-xs opacity-60" disabled="">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+<span class="">Rescan (Locked during scan)</span>
+</button>
+</div>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-space-xs">Screen 1.0: BLE Discovery &amp; Advertising Scan</span>
+</div>
+<!-- ==============================================
+         SCREEN 2: SENSOR DETAIL SCREEN (REAL-TIME TELEMETRY)
+         ============================================== -->
+<div class="flex flex-col items-center">
+<div class="flex items-center justify-between w-full max-w-[390px] mb-space-xs px-space-xs">
+<span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider">Screen 02 // REAL-TIME DASHBOARD</span>
+<span class="font-label-caps text-label-caps text-status-proven">CONNECTED (3s)</span>
+</div>
+<!-- Industrial Handheld Chassis -->
+<div class="w-full max-w-[390px] bg-surface-container-lowest rounded-xl p-space-xs shadow-2xl relative overflow-hidden">
+<!-- Bezel Inner Shell -->
+<div class="w-full bg-surface rounded-lg overflow-hidden flex flex-col min-h-[740px]">
+<!-- Screen Notch / Status Area -->
+<div class="flex items-center justify-between px-space-md pt-space-xs pb-space-2xs bg-surface-container-low text-on-surface-variant font-label-caps text-[10px]">
+<span class="">14:32</span>
+<div class="w-20 h-3 bg-surface-container-highest rounded-full mx-auto"></div>
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px] text-status-proven">bluetooth_connected</span>
+<span class="material-symbols-outlined text-[13px]">wifi</span>
+<span class="text-status-proven font-bold">92%</span>
+</div>
+</div>
+<!-- App Top Navigation Bar -->
+<div class="px-space-md py-space-xs flex items-center justify-between bg-surface-container-low">
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-headline-sm text-[16px] text-on-surface leading-none">Sensor Details</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mt-0.5">Soil Sensor-9A42</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+</button>
+</div>
+<!-- Polling Header & Control Strip -->
+<div class="px-space-md py-space-sm bg-surface-container flex flex-col gap-space-2xs"><div class="flex items-center justify-between gap-space-xs"><div class="flex items-center gap-1.5 min-w-0"><span class="w-2 h-2 rounded-full bg-status-proven animate-pulse shrink-0"></span><span class="font-label-caps text-[10px] text-status-proven uppercase font-bold tracking-wider truncate">Connected (3s interval)</span></div><div class="flex items-center gap-1 shrink-0"><button class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-caps text-[10px] hover:text-status-ideas transition-colors">Pause</button><button class="px-2 py-0.5 rounded-full bg-surface-container-high text-error font-label-caps text-[10px] hover:bg-error/20 transition-colors">Disconnect</button></div></div><div class="flex items-center justify-between text-outline font-label-caps text-[10px] pt-0.5"><span class="">Last: 14:32:06</span><span class="text-status-proven">Rate: 3.0s</span></div></div>
+<!-- Real-Time Metrics Body -->
+<div class="p-space-md flex flex-col gap-space-sm flex-1 overflow-y-auto">
+<!-- Metric 1: Moisture Card -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-xs shadow-sm"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 rounded-md bg-status-proven/20 flex items-center justify-center text-status-proven shrink-0"><span class="material-symbols-outlined text-[18px]">water_drop</span></div><div class="flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase tracking-wider">SOIL MOISTURE</span><h3 class="font-headline-md text-headline-md text-on-surface font-extrabold leading-tight tracking-tight">38.5 <span class="text-[15px] font-normal text-on-surface-variant">%</span></h3></div></div><span class="font-label-caps text-[10px] text-status-proven bg-status-proven/15 px-2 py-0.5 rounded-full font-bold text-right shrink-0">15-70% Optimal</span></div><div class="w-full flex flex-col gap-1 mt-1"><div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex"><div class="h-full bg-status-proven rounded-full transition-all duration-500" style="width: 38.5%;"></div></div><div class="flex items-center justify-between text-[10px] font-label-caps text-outline tracking-tight leading-none pt-0.5"><span class="">&lt;15 Dry</span><span class="text-status-proven font-bold">15-70 Opt</span><span class="">70-90 Moist</span><span class="">&gt;90 Wet</span></div></div></div>
+<!-- Metric 2: Temperature Card -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-xs shadow-sm"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 rounded-md bg-status-active/20 flex items-center justify-center text-status-active shrink-0"><span class="material-symbols-outlined text-[18px]">thermostat</span></div><div class="flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase tracking-wider">SOIL TEMPERATURE</span><h3 class="font-headline-md text-headline-md text-on-surface font-extrabold leading-tight tracking-tight">24.2 <span class="text-[15px] font-normal text-on-surface-variant">°C</span></h3></div></div><span class="font-label-caps text-[10px] text-status-proven bg-status-proven/15 px-2 py-0.5 rounded-full font-bold text-right shrink-0">18-28°C Normal</span></div><div class="w-full flex flex-col gap-1 mt-1"><div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex"><div class="h-full bg-status-proven rounded-full transition-all duration-500" style="width: 48.4%;"></div></div><div class="flex items-center justify-between text-[10px] font-label-caps text-outline tracking-tight leading-none pt-0.5"><span class="">&lt;18 Cold</span><span class="text-status-proven font-bold">18-28 Ideal</span><span class="">28-35 Warm</span><span class="">&gt;35 Hot</span></div></div></div>
+<!-- Metric 3: EC (Electrical Conductivity) Card -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-xs shadow-sm"><div class="flex items-start justify-between gap-2"><div class="flex items-center gap-space-xs"><div class="w-7 h-7 rounded-md bg-status-ideas/20 flex items-center justify-center text-status-ideas shrink-0"><span class="material-symbols-outlined text-[18px]">electric_bolt</span></div><div class="flex flex-col"><span class="font-label-caps text-[10px] text-outline uppercase tracking-wider">CONDUCTIVITY (EC)</span><h3 class="font-headline-md text-headline-md text-on-surface font-extrabold leading-tight tracking-tight">1.45 <span class="text-[13px] font-normal text-on-surface-variant">mS/cm</span></h3></div></div><span class="font-label-caps text-[10px] text-status-proven bg-status-proven/15 px-2 py-0.5 rounded-full font-bold text-right shrink-0">0.8-1.8 Ideal</span></div><div class="w-full flex flex-col gap-1 mt-1"><div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex"><div class="h-full bg-status-proven rounded-full transition-all duration-500" style="width: 29%;"></div></div><div class="flex items-center justify-between text-[10px] font-label-caps text-outline tracking-tight leading-none pt-0.5"><span class="">&lt;0.8 Low</span><span class="text-status-proven font-bold">0.8-1.8</span><span class="">1.8-2.5</span><span class="">2.5-4.0</span><span class="">&gt;4.0 Saline</span></div></div><div class="flex items-center justify-between text-[10px] font-label-caps text-outline pt-0.5"><span class="">GATT Res: ±0.05 mS/cm</span><span class="text-status-proven">Calibrated</span></div></div>
+<!-- Historical Telemetry Section -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold">HISTORICAL LOGS</span>
+<div class="flex items-center gap-1 bg-surface-container-high p-1 rounded-full">
+<button class="px-space-xs py-1 rounded-full bg-status-ideas text-on-primary font-label-caps text-[10px] font-bold">Latest</button>
+<button class="px-space-xs py-1 rounded-full text-on-surface-variant hover:text-on-surface font-label-caps text-[10px]">L1 (2h)</button>
+<button class="px-space-xs py-1 rounded-full text-on-surface-variant hover:text-on-surface font-label-caps text-[10px]">L2 (2d)</button>
+</div>
+</div>
+<!-- L1 Near 2h Trend Chart -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline">L1 Last 2h Telemetry Buffer (24 Probe Points)</span>
+<span class="font-label-caps text-label-caps text-status-ideas">STABLE PROFILE</span>
+</div>
+<!-- Custom SVG Sparkline Telemetry Waveform -->
+<div class="w-full h-24 relative flex items-end">
+<svg class="w-full h-full overflow-visible" viewBox="0 0 320 80">
+<defs>
+<linearGradient id="grad-moist" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#38d39f" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#38d39f" stop-opacity="0.0"></stop>
+</linearGradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="#343537" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="320" y1="20" y2="20"></line>
+<line stroke="#343537" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="320" y1="50" y2="50"></line>
+<!-- Moisture Waveform (Emerald) -->
+<path d="M0,45 Q20,38 40,42 T80,36 T120,40 T160,35 T200,34 T240,32 T280,30 T320,28" fill="none" stroke="#38d39f" stroke-width="2.5"></path>
+<!-- Temperature Waveform (Blue) -->
+<path d="M0,60 Q30,58 60,62 T120,59 T180,55 T240,52 T300,50 T320,48" fill="none" stroke="#3fa9f5" stroke-dasharray="3 2" stroke-width="1.8"></path>
+<!-- EC Waveform (Chartreuse) -->
+<path d="M0,70 Q40,68 80,66 T160,64 T240,60 T320,58" fill="none" stroke="#d4e128" stroke-width="1.8"></path>
+</svg>
+</div>
+<!-- Legend Pills -->
+<div class="flex items-center justify-between pt-space-xs text-[10px] font-label-caps">
+<span class="flex items-center gap-1 text-status-proven"><span class="w-2 h-0.5 bg-status-proven"></span> Moisture 38.5% (+0.4%)</span>
+<span class="flex items-center gap-1 text-status-active"><span class="w-2 h-0.5 bg-status-active"></span> Temp 24.2°C (-0.2°C)</span>
+<span class="flex items-center gap-1 text-status-ideas"><span class="w-2 h-0.5 bg-status-ideas"></span> EC 1.45</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-space-xs">Screen 2.0: Real-time Telemetry Dashboard (GATT Polled)</span>
+</div>
+<!-- ==============================================
+         SCREEN 3: SETTINGS SCREEN (DEVICE CONFIGURATION & SETTINGS)
+         ============================================== -->
+<div class="flex flex-col items-center">
+<div class="flex items-center justify-between w-full max-w-[390px] mb-space-xs px-space-xs">
+<span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider">Screen 03 // DEVICE CONFIGURATION</span>
+<span class="font-label-caps text-label-caps text-outline">FIRMWARE V1.2.0</span>
+</div>
+<!-- Industrial Handheld Chassis -->
+<div class="w-full max-w-[390px] bg-surface-container-lowest rounded-xl p-space-xs shadow-2xl relative overflow-hidden">
+<!-- Bezel Inner Shell -->
+<div class="w-full bg-surface rounded-lg overflow-hidden flex flex-col min-h-[740px]">
+<!-- Screen Notch / Status Area -->
+<div class="flex items-center justify-between px-space-md pt-space-xs pb-space-2xs bg-surface-container-low text-on-surface-variant font-label-caps text-[10px]">
+<span class="">14:35</span>
+<div class="w-20 h-3 bg-surface-container-highest rounded-full mx-auto"></div>
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px]">tune</span>
+<span class="material-symbols-outlined text-[13px]">battery_std</span>
+</div>
+</div>
+<!-- App Top Navigation Bar -->
+<div class="px-space-md py-space-sm flex items-center justify-between bg-surface-container-low">
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-headline-sm text-[16px] text-on-surface leading-none">Sensor Settings</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant mt-0.5">Thresholds &amp; Calibration</span>
+</div>
+<div class="w-8"></div>
+</div>
+<div class="p-space-md flex flex-col gap-space-md flex-1">
+<!-- OTA Firmware Notice Banner -->
+<div class="p-space-sm rounded-lg bg-status-feasibility/10 flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-status-feasibility mt-0.5">notification_important</span>
+<p class="font-body-sm text-body-sm text-status-feasibility">
+<strong>Notice:</strong> Firmware v1.2.0 installed. Multi-zone sync is currently in test mode. Full OTA update coming soon.
+              </p>
+</div>
+<!-- Settings Group 1: Threshold Alarm Configuration -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">CRITICAL ALERT THRESHOLDS</span>
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-sm"><div class="flex items-center justify-between gap-space-sm"><div class="flex flex-col min-w-0 flex-1"><span class="font-label-md text-label-md text-on-surface truncate">Moisture Low Alert (&lt;15%)</span><span class="font-body-sm text-body-sm text-on-surface-variant truncate">Trigger irrigation warning</span></div><div class="w-10 h-5 rounded-full bg-status-ideas p-0.5 flex items-center justify-end cursor-pointer shrink-0"><div class="w-4 h-4 rounded-full bg-on-primary shadow"></div></div></div><div class="flex items-center justify-between gap-space-sm pt-space-xs border-t border-surface-container-high"><div class="flex flex-col min-w-0 flex-1"><span class="font-label-md text-label-md text-on-surface truncate">EC Spike Alert (&gt;2.5 mS/cm)</span><span class="font-body-sm text-body-sm text-on-surface-variant truncate">Prevent root fertilizer burn</span></div><div class="w-10 h-5 rounded-full bg-status-ideas p-0.5 flex items-center justify-end cursor-pointer shrink-0"><div class="w-4 h-4 rounded-full bg-on-primary shadow"></div></div></div></div>
+</div>
+<!-- Settings Group 2: Unit Configuration -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">MEASUREMENT UNITS</span>
+<div class="bg-surface-container p-space-md rounded-lg flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Temperature Unit</span>
+<div class="flex items-center bg-surface-container-high p-1 rounded-full">
+<button class="px-space-md py-1 rounded-full bg-status-ideas text-on-primary font-label-md text-label-md font-bold">°C</button>
+<button class="px-space-md py-1 rounded-full text-on-surface-variant font-label-md text-label-md">°F</button>
+</div>
+</div>
+</div>
+<!-- Settings Group 3: Historical Data & Sensor Memory -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">FLASH DATA CACHE MANAGEMENT</span>
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Clear Sensor Local Buffer</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Free 512KB Flash Ring Buffer</span>
+</div>
+<button class="px-space-sm py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-caps text-label-caps hover:bg-error/20 hover:text-error transition-colors">
+                    Purge
+                  </button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex flex-col opacity-50">
+<span class="font-label-md text-label-md text-on-surface">Export Telemetry CSV Log</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Batch export via BLE</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline bg-surface-container-high px-space-xs py-1 rounded-full">V2.0 Preview</span>
+</div>
+</div>
+</div>
+<!-- Settings Group 4: Device Hardware Specs Readout -->
+<div class="flex flex-col gap-space-xs mt-auto">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">HARDWARE &amp; FIRMWARE METADATA</span>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-1 font-mono text-[11px] text-on-surface-variant"><div class="flex items-center justify-between gap-2"><span class="font-label-caps text-[10px] uppercase text-outline">MAC Address:</span><span class="text-on-surface font-mono text-[11px] font-bold">E4:5F:01:9A:42:C8</span></div><div class="flex items-center justify-between gap-2"><span class="font-label-caps text-[10px] uppercase text-outline">Polling Rate:</span><span class="text-on-surface font-mono text-[11px]">3.0s (GATT 0x181A)</span></div><div class="flex items-center justify-between gap-2"><span class="font-label-caps text-[10px] uppercase text-outline">SoC Model:</span><span class="text-on-surface font-mono text-[11px]">Nordic nRF52840-QIAA</span></div><div class="flex items-center justify-between gap-2"><span class="font-label-caps text-[10px] uppercase text-outline">Calibration:</span><span class="text-status-ideas font-mono text-[11px] font-bold">CAL-V3-SILT-LOAM</span></div></div>
+</div>
+</div>
+</div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mt-space-xs">Screen 3.0: Hardware Settings &amp; Future Protocol Stubs</span>
+</div>
+</section>
+<!-- Comprehensive Visual Break: Field Application Context Banner -->
+<section class="w-full bg-surface-container rounded-xl p-space-xl mb-space-4xl relative overflow-hidden shadow-xl">
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<div class="lg:col-span-8 flex flex-col">
+<span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider mb-space-2xs">CALIBRATION PROTOCOL &amp; FIELD INTEGRATION</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-space-sm">Industrial Soil Moisture &amp; Salinity Telemetry</h3>
+<p class="font-body-md text-body-md text-secondary leading-relaxed max-w-2xl">
+          Soil Sensor V3 combines frequency domain reflectometry (FDR) with 4-electrode platinum conductivity sensing, engineered for continuous operation in greenhouse substrates, open-field agro-corridors, and scientific forestry plots.
+        </p>
+<div class="flex flex-wrap gap-space-md mt-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-ideas text-[20px]">check_circle</span>
+<span class="font-label-md text-label-md text-on-surface">IP68 Immersion Sealed</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-ideas text-[20px]">check_circle</span>
+<span class="font-label-md text-label-md text-on-surface">Anti-Corrosion 316L SS Probes</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-ideas text-[20px]">check_circle</span>
+<span class="font-label-md text-label-md text-on-surface">3-Year Lithium ER14505 Life</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col items-center justify-center p-space-md bg-surface-container-high rounded-lg">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-space-2xs">CURRENT SOIL PROFILE</span>
+<span class="font-headline-md text-headline-md text-status-ideas font-bold">LOAMY SAND 40%</span>
+<span class="font-body-sm text-body-sm text-secondary text-center mt-space-2xs">FDR Calibration Curve active. Temperature coefficient auto-compensated (2.1%/°C).</span>
+</div>
+</div>
+</section>
+<!-- ==============================================
+       DESIGN SYSTEM & UI KIT COMPONENT SPECIFICATION
+       ============================================== -->
+<section class="w-full flex flex-col mb-space-4xl">
+<div class="flex flex-col mb-space-xl">
+<div class="flex items-center gap-space-xs mb-space-2xs">
+<span class="material-symbols-outlined text-status-ideas text-[22px]">category</span>
+<span class="font-label-caps text-label-caps text-status-ideas uppercase tracking-wider">UI KIT ARCHITECTURE</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">System Components &amp; Industrial Tokens</h2>
+<p class="font-body-md text-body-md text-secondary">
+        Reusable atomic design specs, chromatic palettes, real-time gauges, and status badges built to industrial outdoor standards.
+      </p>
+</div>
+<!-- UI Kit Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-lg">
+<!-- 1. Color Palette Swatches (Col 1-6) -->
+<div class="md:col-span-6 bg-surface-container p-space-xl rounded-xl flex flex-col gap-space-md shadow-lg">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Chromatic Matrix (Named Tokens)</h4>
+<span class="font-label-caps text-label-caps text-outline uppercase">DARK / HIGH-VOLT</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">High-contrast tokens designed for readability under high solar glare or dim workshop conditions.</p>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<!-- Swatch 1 -->
+<div class="flex flex-col gap-1">
+<div class="h-16 rounded-lg bg-status-ideas flex items-end p-2 text-on-primary">
+<span class="font-label-caps text-[10px] font-bold">#D4E128</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold">High-Contrast Chartreuse</span>
+<span class="font-body-sm text-body-sm text-outline">#D4E128</span>
+</div>
+<!-- Swatch 2 -->
+<div class="flex flex-col gap-1">
+<div class="h-16 rounded-lg bg-status-proven flex items-end p-2 text-on-tertiary">
+<span class="font-label-caps text-[10px] font-bold">#38D39F</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold">Optimum Emerald</span>
+<span class="font-body-sm text-body-sm text-outline">#38D39F</span>
+</div>
+<!-- Swatch 3 -->
+<div class="flex flex-col gap-1">
+<div class="h-16 rounded-lg bg-status-feasibility flex items-end p-2 text-surface">
+<span class="font-label-caps text-[10px] font-bold">#E69B38</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold">Warning Amber</span>
+<span class="font-body-sm text-body-sm text-outline">#E69B38</span>
+</div>
+<!-- Swatch 4 -->
+<div class="flex flex-col gap-1">
+<div class="h-16 rounded-lg bg-status-active flex items-end p-2 text-surface">
+<span class="font-label-caps text-[10px] font-bold">#3FA9F5</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface font-bold">Telemetry Blue</span>
+<span class="font-body-sm text-body-sm text-outline">#3FA9F5</span>
+</div>
+</div>
+<!-- Charcoal Stack Swatches -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs">
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">Level 0</span>
+<span class="font-label-md text-label-md text-on-surface">#0D0E10 lowest</span>
+</div>
+<div class="bg-surface-container p-space-sm rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">Level 1</span>
+<span class="font-label-md text-label-md text-on-surface">#1E2022 container</span>
+</div>
+<div class="bg-surface-container-high p-space-sm rounded-lg flex flex-col">
+<span class="font-label-caps text-label-caps text-outline">Level 2</span>
+<span class="font-label-md text-label-md text-on-surface">#292A2C elevated</span>
+</div>
+</div>
+</div>
+<!-- 2. Status Badge System (Col 7-12) -->
+<div class="md:col-span-6 bg-surface-container p-space-xl rounded-xl flex flex-col gap-space-md shadow-lg">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Telemetry State Badges</h4>
+<span class="font-label-caps text-label-caps text-outline uppercase">GATT PIPELINE</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Standardized status badges providing instant visual clarity for peripheral handshakes.</p>
+<div class="flex flex-wrap gap-space-sm items-center">
+<!-- Scanning Badge -->
+<div class="flex items-center gap-space-2xs bg-surface-container-high px-space-md py-space-xs rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-status-ideas animate-ping"></span>
+<span class="font-label-caps text-label-caps text-status-ideas uppercase font-bold">SCANNING PROBES...</span>
+</div>
+<!-- Connected 3s Badge -->
+<div class="flex items-center gap-space-2xs bg-status-proven/15 px-space-md py-space-xs rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-status-proven"></span>
+<span class="font-label-caps text-label-caps text-status-proven uppercase font-bold">CONNECTED (3S POLLING)</span>
+</div>
+<!-- Paused Badge -->
+<div class="flex items-center gap-space-2xs bg-surface-container-highest px-space-md py-space-xs rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-caps text-label-caps text-secondary uppercase font-bold">STREAM PAUSED</span>
+</div>
+<!-- Warning Badge -->
+<div class="flex items-center gap-space-2xs bg-status-feasibility/15 px-space-md py-space-xs rounded-full">
+<span class="material-symbols-outlined text-[16px] text-status-feasibility">warning</span>
+<span class="font-label-caps text-label-caps text-status-feasibility uppercase font-bold">SUB-OPTIMAL EC (2.6 MS/CM)</span>
+</div>
+<!-- Disconnected Badge -->
+<div class="flex items-center gap-space-2xs bg-error/15 px-space-md py-space-xs rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="font-label-caps text-label-caps text-error uppercase font-bold">LINK LOST (TIMEOUT)</span>
+</div>
+</div>
+<div class="mt-auto bg-surface-container-low p-space-sm rounded-lg flex items-center justify-between text-outline font-label-caps text-[11px]">
+<span class="">GATT STATE MACHINE: DISCONNECTED &gt; SCANNING &gt; CONNECTING &gt; STREAMING</span>
+</div><div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-1 text-[11px] font-body-sm text-secondary"><div class="flex items-center justify-between font-label-caps text-[10px] text-status-ideas font-bold uppercase tracking-wider"><span class="">DEVICE HIERARCHY SPEC: CONNECTED VS DISCOVERED</span><span class="text-status-proven">GATT LEVEL-1</span></div><p class="text-on-surface-variant text-[11px] leading-relaxed">Connected probes utilize elevated <code class="text-status-ideas font-mono">surface-container-high</code> surfaces with live polling indicators and direct telemetry actions, whereas discovered peripherals reside on low surfaces with passive RSSI readouts.</p></div>
+</div>
+<!-- 3. Progress Bar & Threshold Anatomy (Col 1-8) -->
+<div class="md:col-span-8 bg-surface-container p-space-xl rounded-xl flex flex-col gap-space-md shadow-lg">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Telemetry Multi-Zone Progress Anatomy</h4>
+<span class="font-label-caps text-label-caps text-status-ideas uppercase">COMPONENT SPEC</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Continuous physical gauge with segmented sub-surface threshold calibration limits.</p>
+<!-- Annotated Progress Bar Spec -->
+<div class="bg-surface-container-low p-space-lg rounded-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Soil Moisture Profile Track (0% – 100%)</span>
+<span class="font-label-caps text-label-caps text-status-proven font-bold">38.5% FILL</span>
+</div>
+<!-- The Component Under Inspection -->
+<div class="w-full flex flex-col gap-2">
+<div class="w-full h-4 bg-surface-container-highest rounded-full overflow-hidden p-0.5 flex relative">
+<!-- Colored Segments Background Track -->
+<div class="absolute inset-0 flex">
+<div class="h-full bg-status-feasibility/20" style="width: 15%;"></div>
+<div class="h-full bg-status-proven/20" style="width: 55%;"></div>
+<div class="h-full bg-status-active/20" style="width: 20%;"></div>
+<div class="h-full bg-error/20" style="width: 10%;"></div>
+</div>
+<!-- Active Value Bar -->
+<div class="h-full bg-status-proven rounded-full relative z-10 transition-all duration-300 shadow-sm" style="width: 38.5%;"></div>
+</div>
+<!-- Labels -->
+<div class="grid grid-cols-4 text-center font-label-caps text-label-caps text-outline">
+<div class="text-left text-status-feasibility">0-15% Arid</div>
+<div class="text-center text-status-proven font-bold">15-70% Optimal</div>
+<div class="text-center text-status-active">70-90% Moist</div>
+<div class="text-right text-error">&gt;90% Saturated</div>
+</div>
+</div>
+<!-- Micro specs footer -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs text-outline font-body-sm text-[11px]">
+<div class=""><strong>Track Height:</strong> 16px (12px on mobile)</div>
+<div class=""><strong>Border Radius:</strong> 9999px (full pill)</div>
+<div class=""><strong>Segment Calibration:</strong> Dynamic FDR</div>
+</div>
+</div>
+</div>
+<!-- 4. Tactical Control Buttons (Col 9-12) -->
+<div class="md:col-span-4 bg-surface-container p-space-xl rounded-xl flex flex-col gap-space-md shadow-lg">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Pill Controls</h4>
+<span class="font-label-caps text-label-caps text-outline uppercase">TACTILE UI</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Primary High-Volt Button -->
+<button class="w-full py-space-sm px-space-lg rounded-full bg-status-ideas text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-space-xs shadow hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span class="">Primary High-Volt Action</span>
+</button>
+<!-- Outlined Trigger Button -->
+<button class="w-full py-space-sm px-space-lg rounded-full bg-surface-container-high text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-space-xs hover:bg-surface-bright active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span class="">Secondary Outlined Pill</span>
+</button>
+<!-- Segmented Filter Trigger -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-full justify-between">
+<button class="px-space-md py-1.5 rounded-full bg-status-ideas text-on-primary font-label-md text-label-md font-bold">Latest</button>
+<button class="px-space-md py-1.5 rounded-full text-on-surface-variant font-label-md text-label-md">L1 (2h)</button>
+<button class="px-space-md py-1.5 rounded-full text-on-surface-variant font-label-md text-label-md">L2 (2d)</button>
+</div>
+<!-- Danger Action -->
+<button class="w-full py-space-sm px-space-md rounded-full bg-error/15 text-error font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs hover:bg-error/25 transition-all">
+<span class="material-symbols-outlined text-[18px]">link_off</span>
+<span class="">Disconnect GATT Peripheral</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Technical GATT Specification Table Footnote -->
+<section class="w-full bg-surface-container rounded-xl p-space-xl mb-space-3xl shadow-xl">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-ideas text-[20px]">terminal</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">BLE GATT SERVICE CHARACTERISTICS MAP</h3>
+</div>
+<span class="font-label-caps text-label-caps text-status-proven bg-surface-container-high px-space-sm py-1 rounded-full">UUID 0x181A COMPLIANT</span>
+</div>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm"><thead class="bg-surface-container-high text-on-surface-variant font-label-caps text-label-caps uppercase whitespace-nowrap"><tr><th class="p-space-sm rounded-l-lg">PARAMETER</th><th class="p-space-sm">GATT CHARACTERISTIC UUID</th><th class="p-space-sm">FORMAT</th><th class="p-space-sm">UPDATE INTERVAL</th><th class="p-space-sm">TARGET DYNAMIC RANGE</th><th class="p-space-sm rounded-r-lg">RESOLUTION</th></tr></thead><tbody class="divide-y divide-surface-container-high text-on-surface whitespace-nowrap"><tr><td class="p-space-sm font-label-md text-label-md flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-status-proven shrink-0"></span> Soil Moisture</td><td class="p-space-sm font-mono text-on-surface-variant text-[11px]">00002A6F-0000-1000-8000-00805F9B34FB</td><td class="p-space-sm font-mono text-[12px]">uint16 (0.01%)</td><td class="p-space-sm">3.00s Polling</td><td class="p-space-sm">0.0% – 100.0%</td><td class="p-space-sm font-bold text-status-proven">±1.0%</td></tr><tr><td class="p-space-sm font-label-md text-label-md flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-status-active shrink-0"></span> Soil Temperature</td><td class="p-space-sm font-mono text-on-surface-variant text-[11px]">00002A6E-0000-1000-8000-00805F9B34FB</td><td class="p-space-sm font-mono text-[12px]">sint16 (0.1 °C)</td><td class="p-space-sm">3.00s Polling</td><td class="p-space-sm">-20.0 °C ~ 70.0 °C</td><td class="p-space-sm font-bold text-status-proven">±0.2 °C</td></tr><tr><td class="p-space-sm font-label-md text-label-md flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-status-ideas shrink-0"></span> EC Salinity</td><td class="p-space-sm font-mono text-on-surface-variant text-[11px]">00002A58-0000-1000-8000-00805F9B34FB</td><td class="p-space-sm font-mono text-[12px]">uint16 (0.001 mS/cm)</td><td class="p-space-sm">3.00s Polling</td><td class="p-space-sm">0.00 ~ 10.00 mS/cm</td><td class="p-space-sm font-bold text-status-ideas">±0.05 mS/cm</td></tr><tr><td class="p-space-sm font-label-md text-label-md flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary shrink-0"></span> Historical Buffer L1</td><td class="p-space-sm font-mono text-on-surface-variant text-[11px]">0000FFF1-0000-1000-8000-00805F9B34FB</td><td class="p-space-sm font-mono text-[12px]">Byte Array (24 Pts)</td><td class="p-space-sm">On-Demand Request</td><td class="p-space-sm">Recent 120 Minutes</td><td class="p-space-sm font-bold">Aggregated 5min Avg</td></tr></tbody></table>
+</div>
+</section>
+<!-- Interactive JavaScript Micro-interactions for Screen Mockup Previews -->
+<script>
+    // Pure inline interaction toggles for client demonstration
+    document.addEventListener('DOMContentLoaded', () => {
+      // Metric card dynamic fluctuation simulation (reflecting 3s polling)
+      setInterval(() => {
+        const moistEl = document.querySelector('h3:contains("38.5")');
+        // Gentle pulse indicator
+        const pulses = document.querySelectorAll('.animate-pulse');
+        pulses.forEach(p => {
+          p.classList.toggle('opacity-80');
+        });
+      }, 3000);
+    });
+  </script>
+</div></main></div>
+
+
+
+</body></html>

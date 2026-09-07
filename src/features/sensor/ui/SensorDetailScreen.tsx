@@ -29,8 +29,9 @@ export function SensorDetailScreen({ route, navigation }: Props) {
   const { deviceId, deviceName } = route.params;
   const { connection, reading, isReading, device, connect, disconnect, setReadingEnabled } =
     useGattReader();
-  const { loading, error, l1, l2, readLatest, readL1, readL2 } = useHistory();
+  const { loading, all, readAll } = useHistory();
   const connectStartedRef = useRef(false);
+  const historyStartedRef = useRef(false);
 
   useEffect(() => {
     if (!connectStartedRef.current) {
@@ -42,6 +43,12 @@ export function SensorDetailScreen({ route, navigation }: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId]);
+
+  useEffect(() => {
+    if (!device || historyStartedRef.current) return;
+    historyStartedRef.current = true;
+    readAll(device, deviceId);
+  }, [device, deviceId, readAll]);
 
   const moisture = reading?.moisturePercent ?? null;
   const temperature = reading?.temperatureC ?? null;
@@ -67,12 +74,12 @@ export function SensorDetailScreen({ route, navigation }: Props) {
 
   const statusLabel =
     connection.state === 'reading'
-      ? '已连接，每 3 秒读数'
+      ? 'Connected, reading every 3s'
       : connection.state === 'connecting'
-        ? '连接中…'
+        ? 'Connecting…'
         : connection.state === 'error'
-          ? `错误：${connection.error}`
-          : '未连接';
+          ? `Error: ${connection.error}`
+          : 'Not connected';
   const statusColor =
     connection.state === 'reading'
       ? colors.statusProven
@@ -87,16 +94,9 @@ export function SensorDetailScreen({ route, navigation }: Props) {
         <TouchableOpacity style={styles.navBtn} onPress={() => navigation.goBack()}>
           <Text style={styles.navBtnText}>‹</Text>
         </TouchableOpacity>
-        <View style={styles.navTitleWrap}>
-          <Text style={styles.navTitle}>传感器详情</Text>
-          <Text style={styles.navSubtitle}>{deviceName ?? 'Soil Sensor'}</Text>
+        <View style={[styles.navTitleWrap, { top: insets.top + 10 }]}>
+          <Text style={[styles.navTitle, styles.centeredText]}>{deviceName ?? 'Soil Sensor'}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.navBtn}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={styles.navBtnText}>⚙</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Polling header strip */}
@@ -112,18 +112,18 @@ export function SensorDetailScreen({ route, navigation }: Props) {
                 style={styles.pollActionBtn}
                 onPress={() => setReadingEnabled(!isReading)}
               >
-                <Text style={styles.pollActionText}>{isReading ? '暂停读数' : '恢复读数'}</Text>
+                <Text style={styles.pollActionText}>{isReading ? 'Pause' : 'Resume'}</Text>
               </TouchableOpacity>
             ) : null}
             <TouchableOpacity style={[styles.pollActionBtn, styles.disconnectBtn]} onPress={disconnect}>
-              <Text style={styles.disconnectText}>断开连接</Text>
+              <Text style={styles.disconnectText}>Disconnect</Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.pollMeta}>
-          <Text style={styles.pollMetaText}>最近更新: {lastUpdate}</Text>
+          <Text style={styles.pollMetaText}>Last update: {lastUpdate}</Text>
           <Text style={[styles.pollMetaOk, { color: statusColor }]}>
-            {connection.state === 'reading' ? '3 秒轮询正常' : '--'}
+            {connection.state === 'reading' ? '3s polling OK' : '--'}
           </Text>
         </View>
       </View>
@@ -134,48 +134,48 @@ export function SensorDetailScreen({ route, navigation }: Props) {
       >
         <View style={styles.metrics}>
           <MetricCard
-            label="土壤湿度 (Moisture)"
+            label="Soil Moisture"
             value={moisture === null ? '--' : moisture.toFixed(1)}
             unit=" %"
             tone={moistureTone}
-            status={moisture === null ? '等待读数' : '15-70% 正常（适宜）'}
-            subtitle={moisture === null ? '等待读数…' : `读数 ${moisture.toFixed(1)}%`}
+            status={moisture === null ? 'Waiting for reading' : '15-70% Normal (suitable)'}
+            subtitle={moisture === null ? 'Waiting for reading…' : `Reading ${moisture.toFixed(1)}%`}
             fill={moisture}
             segments={[
-              { label: '<15 偏干', active: moisture !== null && moisture < MOISTURE_RANGES.dry },
-              { label: '15-70 正常', active: moisture !== null && moisture >= MOISTURE_RANGES.dry && moisture <= MOISTURE_RANGES.ok },
-              { label: '70-90 充沛', active: moisture !== null && moisture > MOISTURE_RANGES.ok && moisture <= MOISTURE_RANGES.noNeed },
-              { label: '>90 过多', active: moisture !== null && moisture > MOISTURE_RANGES.noNeed },
+              { label: '<15 Dry', active: moisture !== null && moisture < MOISTURE_RANGES.dry },
+              { label: '15-70 Normal', active: moisture !== null && moisture >= MOISTURE_RANGES.dry && moisture <= MOISTURE_RANGES.ok },
+              { label: '70-90 Adequate', active: moisture !== null && moisture > MOISTURE_RANGES.ok && moisture <= MOISTURE_RANGES.noNeed },
+              { label: '>90 Too wet', active: moisture !== null && moisture > MOISTURE_RANGES.noNeed },
             ]}
           />
           <MetricCard
-            label="土壤温度 (Temperature)"
+            label="Soil Temperature"
             value={temperature === null ? '--' : temperature.toFixed(1)}
             unit=" ℃"
             tone={tempTone}
-            status={temperature === null ? '等待读数' : '18-28℃ 适宜'}
-            subtitle={temperature === null ? '等待读数…' : `读数 ${temperature.toFixed(1)}℃`}
+            status={temperature === null ? 'Waiting for reading' : '18-28℃ Suitable'}
+            subtitle={temperature === null ? 'Waiting for reading…' : `Reading ${temperature.toFixed(1)}℃`}
             fill={temperature === null ? 0 : (temperature / 50) * 100}
             segments={[
-              { label: '<18 偏冷', active: temperature !== null && temperature < TEMP_RANGES.cool },
-              { label: '18-28 适宜', active: temperature !== null && temperature >= TEMP_RANGES.cool && temperature <= TEMP_RANGES.ideal },
-              { label: '28-35 偏暖', active: temperature !== null && temperature > TEMP_RANGES.ideal && temperature <= TEMP_RANGES.warm },
-              { label: '>35 过热', active: temperature !== null && temperature > TEMP_RANGES.warm },
+              { label: '<18 Cool', active: temperature !== null && temperature < TEMP_RANGES.cool },
+              { label: '18-28 Suitable', active: temperature !== null && temperature >= TEMP_RANGES.cool && temperature <= TEMP_RANGES.ideal },
+              { label: '28-35 Warm', active: temperature !== null && temperature > TEMP_RANGES.ideal && temperature <= TEMP_RANGES.warm },
+              { label: '>35 Too hot', active: temperature !== null && temperature > TEMP_RANGES.warm },
             ]}
           />
           <MetricCard
-            label="土壤电导率 (EC 肥力)"
+            label="Soil EC (Fertility)"
             value={ec === null ? '--' : ec.toFixed(2)}
             unit=" mS/cm"
             tone={ecTone}
-            status={ec === null ? '等待读数' : '0.8-1.8 理想'}
-            subtitle={ec === null ? '等待读数…' : '即时刻读数 (精度 ±0.05 mS/cm)'}
+            status={ec === null ? 'Waiting for reading' : '0.8-1.8 Ideal'}
+            subtitle={ec === null ? 'Waiting for reading…' : 'Live reading (accuracy ±0.05 mS/cm)'}
             fill={ec === null ? 0 : (ec / 5) * 100}
             segments={[
-              { label: '<0.8 偏低', active: ec !== null && ec < EC_RANGES.idealMin },
-              { label: '0.8-1.8 理想', active: ec !== null && ec >= EC_RANGES.idealMin && ec <= EC_RANGES.idealMax },
-              { label: '1.8-2.5 偏高', active: ec !== null && ec > EC_RANGES.idealMax && ec <= EC_RANGES.warning },
-              { label: '>2.5 警戒', active: ec !== null && ec > EC_RANGES.warning },
+              { label: '<0.8 Low', active: ec !== null && ec < EC_RANGES.idealMin },
+              { label: '0.8-1.8 Ideal', active: ec !== null && ec >= EC_RANGES.idealMin && ec <= EC_RANGES.idealMax },
+              { label: '1.8-2.5 High', active: ec !== null && ec > EC_RANGES.idealMax && ec <= EC_RANGES.warning },
+              { label: '>2.5 Alert', active: ec !== null && ec > EC_RANGES.warning },
             ]}
           />
         </View>
@@ -183,40 +183,15 @@ export function SensorDetailScreen({ route, navigation }: Props) {
         {/* Historical section */}
         <View style={styles.historyCard}>
           <View style={styles.historyHeader}>
-            <Text style={styles.historyTitle}>历史记录区</Text>
-            <View style={styles.segmented}>
-              <TouchableOpacity
-                style={[styles.segBtn, styles.segBtnActive]}
-                disabled={!device}
-                onPress={() => device && readLatest(device, deviceId)}
-              >
-                <Text style={[styles.segText, styles.segTextActive]}>读 Latest</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.segBtn}
-                disabled={!device}
-                onPress={() => device && readL1(device, deviceId)}
-              >
-                <Text style={styles.segText}>L1 (2h)</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.segBtn}
-                disabled={!device}
-                onPress={() => device && readL2(device, deviceId)}
-              >
-                <Text style={styles.segText}>L2 (2d)</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.historyTitle}>History</Text>
           </View>
-
           {loading ? <ActivityIndicator style={styles.spinner} color={colors.statusIdeas} /> : null}
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          {l1 ? (
-            <HistoryChart title="L1 近 2 小时遥测趋势" points={buildHistoryPoints(l1.subRecords)} />
-          ) : null}
-          {l2 ? (
-            <HistoryChart title="L2 近 2 天遥测趋势" points={buildHistoryPoints(l2.subRecords)} />
+          {all ? (
+            <HistoryChart
+              title="All History (L1 + L2)"
+              timeRange="Time range: last 2 days"
+              points={buildHistoryPoints(all)}
+            />
           ) : null}
         </View>
       </ScrollView>
@@ -228,6 +203,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   navBar: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -242,10 +218,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
   },
   navBtnText: { color: colors.onSurface, fontSize: 18 },
-  navTitleWrap: { alignItems: 'center' },
+  navTitleWrap: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 10,
+    left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
   navTitle: { fontSize: 16, color: colors.onSurface, fontWeight: '700' },
+  centeredText: { textAlign: 'center' },
   navSubtitle: { fontSize: 10, letterSpacing: 0.4, color: colors.onSurfaceVariant, marginTop: 2 },
   pollStrip: {
     backgroundColor: colors.surfaceContainer,
@@ -283,6 +270,15 @@ const styles = StyleSheet.create({
   },
   historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   historyTitle: { fontSize: 14, color: colors.onSurface, fontWeight: '700' },
+  allHistoryAction: {
+    marginLeft: 'auto',
+    marginRight: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: colors.statusIdeas,
+  },
+  allHistoryActionText: { fontSize: 11, color: colors.onPrimary, fontWeight: '700' },
   segmented: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceHigh,

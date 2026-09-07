@@ -10,6 +10,7 @@ import {
   SMART_POT_NAME_PREFIX,
 } from '../../../core/constants/protocol';
 import type { ScannedDevice } from '../domain/scanState';
+import { logBle, logBleError } from '../../../infrastructure/ble/bleLogger';
 
 export const bleManager = new BleManager();
 
@@ -24,8 +25,10 @@ export interface ScanHandler {
  */
 export function startScan(handler: ScanHandler): () => void {
   const seen = new Set<string>();
+  logBle('scan.start', { scanMode: 'LowLatency' });
   const stopTimer = setTimeout(() => {
     bleManager.stopDeviceScan();
+    logBle('scan.timeout');
     handler.onTimeout();
   }, SCAN_TIMEOUT_MS);
 
@@ -33,6 +36,7 @@ export function startScan(handler: ScanHandler): () => void {
     bleManager.startDeviceScan(null, { scanMode: ScanMode.LowLatency }, (error, device) => {
       if (error) {
         clearTimeout(stopTimer);
+        logBleError('scan.error', error);
         handler.onError(new AppError('scan-timeout', error.message, error));
         return;
       }
@@ -46,6 +50,12 @@ export function startScan(handler: ScanHandler): () => void {
       if (!protocol) return;
       if (seen.has(device.id)) return;
       seen.add(device.id);
+      logBle('scan.device', {
+        deviceId: device.id,
+        name: device.name ?? null,
+        rssi: device.rssi,
+        protocol,
+      });
       handler.onFound({
         id: device.id,
         name: device.name,
@@ -56,12 +66,14 @@ export function startScan(handler: ScanHandler): () => void {
     });
   } catch (error) {
     clearTimeout(stopTimer);
-    handler.onError(new AppError('bluetooth-unavailable', '无法启动扫描', error));
+    logBleError('scan.start.error', error);
+    handler.onError(new AppError('bluetooth-unavailable', 'Unable to start scanning', error));
   }
 
   return () => {
     clearTimeout(stopTimer);
     bleManager.stopDeviceScan();
+    logBle('scan.stop');
   };
 }
 

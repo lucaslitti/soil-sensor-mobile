@@ -10,6 +10,7 @@ interface HistoryState {
   latest: SubRecord[];
   l1: RecordV1 | null;
   l2: RecordV1 | null;
+  all: SubRecord[] | null;
 }
 
 const INITIAL: HistoryState = {
@@ -18,6 +19,7 @@ const INITIAL: HistoryState = {
   latest: [],
   l1: null,
   l2: null,
+  all: null,
 };
 
 /**
@@ -36,7 +38,7 @@ export function useHistory() {
       setState((s) => ({
         ...s,
         loading: false,
-        error: e instanceof Error ? e.message : '读取最新记录失败',
+        error: e instanceof Error ? e.message : 'Failed to read latest record',
       }));
     }
   }, []);
@@ -54,7 +56,7 @@ export function useHistory() {
       setState((s) => ({
         ...s,
         loading: false,
-        error: e instanceof Error ? e.message : '读取 L1 失败',
+        error: e instanceof Error ? e.message : 'Failed to read L1',
       }));
     }
   }, []);
@@ -72,10 +74,24 @@ export function useHistory() {
       setState((s) => ({
         ...s,
         loading: false,
-        error: e instanceof Error ? e.message : '读取 L2 失败',
+        error: e instanceof Error ? e.message : 'Failed to read L2',
       }));
     }
   }, []);
 
-  return { ...state, readLatest, readL1, readL2 };
+  const readAll = useCallback(async (device: Device, _deviceId: string) => {
+    setState((s) => ({ ...s, loading: true, error: null }));
+    try {
+      const subs = await gattRepository.readAll(device);
+      setState((s) => ({ ...s, loading: false, all: subs }));
+    } catch (e) {
+      setState((s) => ({
+        ...s,
+        loading: false,
+        error: e instanceof Error ? e.message : 'Failed to read all history',
+      }));
+    }
+  }, []);
+
+  return { ...state, readLatest, readL1, readL2, readAll };
 }

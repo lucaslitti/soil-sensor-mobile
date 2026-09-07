@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -19,15 +18,30 @@ import { useSmartPot } from '../hooks/useSmartPot';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SmartPotDetail'>;
 
+const navLayout = StyleSheet.create({
+  nav: { position: 'relative' },
+  circleButton: { zIndex: 1 },
+  titleContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 10,
+    left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centeredText: { textAlign: 'center' },
+});
+
 export function SmartPotDetailScreen({ route, navigation }: Props) {
   const { deviceId, deviceName } = route.params;
   const insets = useSafeAreaInsets();
-  const { connection, snapshot, refreshing, connect, disconnect, refresh, write } = useSmartPot();
+  const { connection, snapshot, connect, disconnect, write } = useSmartPot();
   const [rgb, setRgb] = useState('255,255,255');
   const [pumpSeconds, setPumpSeconds] = useState('30');
   const [config, setConfig] = useState('');
   const started = useRef(false);
-  const run = (operation: Promise<void>) => operation.catch(error => Alert.alert('操作失败', error instanceof Error ? error.message : '未知错误'));
+  const run = (operation: Promise<void>) => operation.catch(error => Alert.alert('Operation failed', error instanceof Error ? error.message : 'Unknown error'));
 
   useEffect(() => {
     if (!started.current) {
@@ -43,7 +57,7 @@ export function SmartPotDetailScreen({ route, navigation }: Props) {
 
   const sendRgb = () => {
     if (!/^\d{1,3},\d{1,3},\d{1,3}$/.test(rgb) || rgb.split(',').some(value => Number(value) > 255)) {
-      Alert.alert('RGB 无效', '请输入 0-255 范围内的 R,G,B，例如 255,128,0。');
+      Alert.alert('Invalid RGB', 'Enter R,G,B within 0-255, e.g. 255,128,0.');
       return;
     }
     run(write(device => smartPotRepository.writeRgb(device, rgb)));
@@ -51,62 +65,60 @@ export function SmartPotDetailScreen({ route, navigation }: Props) {
 
   const sendPump = (value: string) => {
     if (value !== 'on' && !/^\d+$/.test(value)) {
-      Alert.alert('时长无效', '泵运行时长必须是非负整数秒。');
+      Alert.alert('Invalid duration', 'Pump run duration must be a non-negative integer in seconds.');
       return;
     }
-    Alert.alert('确认浇水', value === 'on' ? '立即启动水泵？' : `运行水泵 ${value} 秒？`, [
-      { text: '取消', style: 'cancel' },
-      { text: '确认', style: 'destructive', onPress: () => run(write(device => smartPotRepository.writePump(device, value))) },
+    Alert.alert('Confirm watering', value === 'on' ? 'Start pump now?' : `Run pump for ${value} seconds?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Confirm', style: 'destructive', onPress: () => run(write(device => smartPotRepository.writePump(device, value))) },
     ]);
   };
 
   const sendConfig = () => {
     const error = validateSmartPotConfig(config);
-    if (error) { Alert.alert('配置无效', error); return; }
+    if (error) { Alert.alert('Invalid config', error); return; }
     run(write(device => smartPotRepository.writeConfig(device, config)));
   };
 
   const connected = connection.state === 'reading';
   const automatic = isSmartPotAutoMode(snapshot?.config ?? config);
-  const status = connection.state === 'connecting' ? '连接中并同步时间…' : connection.state === 'error' ? `错误：${connection.error}` : connected ? '已连接，每 2 秒刷新' : '未连接';
+  const status = connection.state === 'connecting' ? 'Connecting and syncing time…' : connection.state === 'error' ? `Error: ${connection.error}` : connected ? 'Connected, refreshing every 2s' : 'Not connected';
 
   return (
     <View style={styles.container}>
-      <View style={[styles.nav, { paddingTop: 10 + insets.top }]}>
-        <TouchableOpacity style={styles.circleButton} onPress={() => navigation.goBack()}><Text style={styles.circleText}>‹</Text></TouchableOpacity>
-        <View><Text style={styles.title}>SmartPot</Text><Text style={styles.subtitle}>{deviceName ?? deviceId}</Text></View>
-        <TouchableOpacity style={styles.circleButton} disabled={!connected || refreshing} onPress={() => run(refresh())}><Text style={styles.circleText}>⟳</Text></TouchableOpacity>
+      <View style={[styles.nav, navLayout.nav, { paddingTop: 10 + insets.top }]}>
+        <TouchableOpacity style={[styles.circleButton, navLayout.circleButton]} onPress={() => navigation.goBack()}><Text style={styles.circleText}>‹</Text></TouchableOpacity>
+        <View style={[navLayout.titleContainer, { top: insets.top + 10 }]} pointerEvents="none"><Text style={[styles.title, navLayout.centeredText]}>SmartPot</Text><Text style={[styles.subtitle, navLayout.centeredText]}>{deviceName ?? deviceId}</Text></View>
       </View>
-      <View style={styles.status}><Text style={[styles.statusText, connection.state === 'error' && styles.error]}>{status}</Text><TouchableOpacity onPress={() => run(disconnect())}><Text style={styles.disconnect}>断开</Text></TouchableOpacity></View>
+      <View style={styles.status}><Text style={[styles.statusText, connection.state === 'error' && styles.error]}>{status}</Text><TouchableOpacity onPress={() => run(disconnect())}><Text style={styles.disconnect}>Disconnect</Text></TouchableOpacity></View>
       <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]}>
-        {refreshing ? <ActivityIndicator color={colors.statusIdeas} /> : null}
-        <Section title="实时状态">
+        <Section title="Live Status">
           <View style={styles.grid}>
-            <Value label="土壤湿度" value={snapshot?.moisture} />
-            <Value label="土壤温度" value={snapshot?.temperature} />
-            <Value label="土壤 EC" value={snapshot?.ec} />
-            <Value label="光照传感器" value={snapshot?.lightSensor} />
-            <Value label="灯" value={snapshot?.light} />
-            <Value label="水泵" value={snapshot?.pump} />
+            <Value label="Soil Moisture" value={snapshot?.moisture} />
+            <Value label="Soil Temperature" value={snapshot?.temperature} />
+            <Value label="Soil EC" value={snapshot?.ec} />
+            <Value label="Light Sensor" value={snapshot?.lightSensor} />
+            <Value label="Light" value={snapshot?.light} />
+            <Value label="Pump" value={snapshot?.pump} />
           </View>
           <Text style={styles.detail}>RGB: {snapshot?.rgb ?? '--'}</Text>
         </Section>
-        <Section title="手动控制">
-          {automatic ? <Text style={styles.hint}>AUTO 模式下手动控制已锁定。</Text> : null}
-          <View style={styles.buttons}><Button label="开灯" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writeLight(device, 'on')))} /><Button label="关灯" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writeLight(device, 'off')))} /></View>
+        <Section title="Manual Control">
+          {automatic ? <Text style={styles.hint}>Manual control is locked in AUTO mode.</Text> : null}
+          <View style={styles.buttons}><Button label="Light On" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writeLight(device, 'on')))} /><Button label="Light Off" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writeLight(device, 'off')))} /></View>
           <TextInput value={rgb} onChangeText={setRgb} style={styles.input} placeholder="R,G,B" placeholderTextColor={colors.outline} keyboardType="number-pad" />
-          <Button label="设置 RGB" disabled={!connected || automatic} onPress={sendRgb} />
-          <View style={styles.buttons}><Button label="启动水泵" disabled={!connected || automatic} danger onPress={() => sendPump('on')} /><Button label="停止水泵" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writePump(device, 'off')))} /></View>
-          <View style={styles.buttons}><TextInput value={pumpSeconds} onChangeText={setPumpSeconds} style={[styles.input, styles.secondsInput]} keyboardType="number-pad" /><Button label="定时浇水" disabled={!connected || automatic} danger onPress={() => sendPump(pumpSeconds)} /></View>
+          <Button label="Set RGB" disabled={!connected || automatic} onPress={sendRgb} />
+          <View style={styles.buttons}><Button label="Start Pump" disabled={!connected || automatic} danger onPress={() => sendPump('on')} /><Button label="Stop Pump" disabled={!connected || automatic} onPress={() => run(write(device => smartPotRepository.writePump(device, 'off')))} /></View>
+          <View style={styles.buttons}><TextInput value={pumpSeconds} onChangeText={setPumpSeconds} style={[styles.input, styles.secondsInput]} keyboardType="number-pad" /><Button label="Timed Watering" disabled={!connected || automatic} danger onPress={() => sendPump(pumpSeconds)} /></View>
         </Section>
-        <Section title="自动化配置">
+        <Section title="Automation Config">
           <View style={styles.buttons}><Button label="MANUAL" disabled={!connected} onPress={() => run(write(device => smartPotRepository.writeConfig(device, 'am=0')))} /><Button label="AUTO" disabled={!connected} onPress={() => run(write(device => smartPotRepository.writeConfig(device, 'am=1')))} /></View>
-          <Text style={styles.hint}>支持 am, aw, al, le, l, h, d, i, ld, li, lon, loff, ace, cs, ce。配置由设备读取后自动回填。</Text>
+          <Text style={styles.hint}>Supports am, aw, al, le, l, h, d, i, ld, li, lon, loff, ace, cs, ce. Config is read back and auto-filled by the device.</Text>
           <TextInput value={config} onChangeText={setConfig} style={[styles.input, styles.configInput]} multiline placeholder="aw=1,al=0,le=0,l=35,h=50,d=30,i=60" placeholderTextColor={colors.outline} />
-          <Button label="应用配置" disabled={!connected || !config.trim()} onPress={sendConfig} />
+          <Button label="Apply Config" disabled={!connected || !config.trim()} onPress={sendConfig} />
         </Section>
-        <Section title={`24 小时历史（${snapshot?.history.length ?? 0}）`}>
-          {!snapshot?.history.length ? <Text style={styles.hint}>暂无历史记录</Text> : snapshot.history.map(point => <View key={`${point.timestamp}-${point.soil}`} style={styles.historyRow}><Text style={styles.historyTime}>{point.timestamp ? new Date(point.timestamp * 1000).toLocaleString() : '--'}</Text><Text style={styles.historyValue}>湿度 {point.soil}%</Text><Text style={styles.historyValue}>温度 {point.temperature}C</Text><Text style={styles.historyValue}>光照 {point.lux} Lux</Text></View>)}
+        <Section title={`24h History (${snapshot?.history.length ?? 0})`}>
+          {!snapshot?.history.length ? <Text style={styles.hint}>No history yet</Text> : snapshot.history.map((point, index) => <View key={`${point.timestamp}-${point.soil}-${point.temperature}-${point.lux}-${index}`} style={styles.historyRow}><Text style={styles.historyTime}>{point.timestamp ? new Date(point.timestamp * 1000).toLocaleString() : '--'}</Text><Text style={styles.historyValue}>Moisture {point.soil}%</Text><Text style={styles.historyValue}>Temp {point.temperature}C</Text><Text style={styles.historyValue}>Light {point.lux} Lux</Text></View>)}
         </Section>
       </ScrollView>
     </View>

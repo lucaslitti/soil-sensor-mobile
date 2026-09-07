@@ -56,10 +56,10 @@ export function decodeLive(
   timestamp: Uint8Array,
 ): LiveReading {
   if (moisture.length < 1 || temperature.length < 1 || ec.length < 1) {
-    throw new CodecError('实时特征字节数不足');
+    throw new CodecError('Live characteristic has too few bytes');
   }
   if (timestamp.length < 4) {
-    throw new CodecError('时间戳字节数不足');
+    throw new CodecError('Timestamp has too few bytes');
   }
   const tsSeconds = viewOf(timestamp, 0, 4).getUint32(0, true);
   return {
@@ -74,7 +74,7 @@ export function decodeLive(
 /** 解码一条 32 字节记录为 8 条子记录。 */
 export function decodeRecord(b: Uint8Array): SubRecord[] {
   if (b.length !== RECORD_BYTES) {
-    throw new CodecError(`record 长度必须为 ${RECORD_BYTES}，实际 ${b.length}`);
+    throw new CodecError(`record length must be ${RECORD_BYTES}, got ${b.length}`);
   }
   const out: SubRecord[] = [];
   for (let i = 0; i < SUB_RECORDS_PER_RECORD; i++) {

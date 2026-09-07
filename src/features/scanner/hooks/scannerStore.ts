@@ -17,7 +17,7 @@ export const useScannerStore = create<ScannerState>((set) => ({
   setState: (state, error) =>
     set({
       state,
-      error: state === 'error' ? error ?? '扫描出错' : null,
+      error: state === 'error' ? error ?? 'Scan error' : null,
     }),
   upsert: (device) =>
     set((s) => ({
