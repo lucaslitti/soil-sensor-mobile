@@ -4,7 +4,7 @@
  */
 import { BleManager, Device, ScanMode } from 'react-native-ble-plx';
 import { AppError } from '../../../core/errors';
-import { SENSOR_NAME_PREFIX, SCAN_TIMEOUT_MS } from '../../../core/constants/protocol';
+import { SCAN_TIMEOUT_MS } from '../../../core/constants/protocol';
 import type { ScannedDevice } from '../domain/scanState';
 
 export const bleManager = new BleManager();
@@ -16,7 +16,7 @@ export interface ScanHandler {
 }
 
 /**
- * 按名称前缀扫描 Soil Sensor 设备。
+ * 扫描附近的 BLE 设备。
  * 名称在 scan response 中，Android 上可能延迟到达，UI 需容忍"名称待定"。
  */
 export function startScan(handler: ScanHandler): () => void {
@@ -34,8 +34,6 @@ export function startScan(handler: ScanHandler): () => void {
         return;
       }
       if (!device) return;
-      const nameMatches = (device.name ?? '').startsWith(SENSOR_NAME_PREFIX);
-      if (!nameMatches) return;
       if (seen.has(device.id)) return;
       seen.add(device.id);
       handler.onFound({

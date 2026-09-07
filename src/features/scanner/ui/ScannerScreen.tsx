@@ -74,7 +74,7 @@ export function ScannerScreen({ navigation }: Props) {
       <View style={[styles.navBar, { paddingTop: 12 + insets.top }]}>
         <View>
           <Text style={styles.title}>Soil Sensor</Text>
-          <Text style={styles.subtitle}>附近设备（名称以 Soil Sensor- 开头）</Text>
+          <Text style={styles.subtitle}>附近设备</Text>
         </View>
         <View style={styles.navIcon}>
           <Text style={styles.navIconText}>⌁</Text>
