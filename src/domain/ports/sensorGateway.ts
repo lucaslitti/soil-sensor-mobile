@@ -15,7 +15,16 @@ export interface ScannedDevice {
 export interface SensorRecord {
   deviceId: string;
   capturedAt: number;
-  subRecords: readonly unknown[];
+  subRecords: readonly SensorSubRecord[];
+}
+
+export interface SensorSubRecord {
+  recordIndex: number;
+  subIndex: number;
+  isEmpty: boolean;
+  moisturePercent: number;
+  temperatureC: number;
+  soilEc: number;
 }
 
 export interface SensorGateway {

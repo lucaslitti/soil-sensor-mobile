@@ -3,5 +3,7 @@ export interface PollingSchedulerPort {
   unregister(id: string): void;
   pause(id: string): void;
   resume(id: string): void;
+  pauseAll?(): void;
+  resumeAll?(): void;
   stop(): void;
 }

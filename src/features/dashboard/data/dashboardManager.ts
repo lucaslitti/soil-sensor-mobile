@@ -1,7 +1,7 @@
 import { applicationEvents, deviceCoordinator } from '../../../application/compositionRoot';
 import { DeviceId } from '../../../domain/value-objects/deviceId';
 import type { ScannedDevice } from '../../scanner/domain/scanState';
-import { useDashboardStore } from '../hooks/dashboardStore';
+import { useDeviceStore } from '../../../interface/stores/deviceStore';
 
 let subscribed = false;
 
@@ -10,12 +10,12 @@ function ensureEventProjection(): void {
   subscribed = true;
   applicationEvents.subscribe(event => {
     if (event.type === 'ReadingUpdated') {
-      useDashboardStore.getState().setReading(event.deviceId, event.reading);
+      useDeviceStore.getState().setReading(event.deviceId, event.reading);
     } else if (event.type === 'SmartPotSnapshotUpdated') {
-      useDashboardStore.getState().setSnapshot(event.deviceId, event.snapshot);
+      useDeviceStore.getState().setSnapshot(event.deviceId, event.snapshot);
     } else if (event.type === 'DeviceStateChanged') {
       const state = event.state === 'failed' ? 'error' : event.state === 'polling' ? 'reading' : 'connecting';
-      useDashboardStore.getState().setConnection(event.deviceId, state, event.error ?? null);
+      useDeviceStore.getState().setConnection(event.deviceId, state, event.error ?? null);
     }
   });
 }
@@ -24,7 +24,7 @@ function ensureEventProjection(): void {
 export const dashboardManager = {
   add(device: ScannedDevice): void {
     ensureEventProjection();
-    useDashboardStore.getState().upsert({
+    useDeviceStore.getState().upsert({
       id: device.id,
       name: device.name ?? device.id,
       protocol: device.protocol,
@@ -38,7 +38,7 @@ export const dashboardManager = {
 
   remove(id: string): void {
     deviceCoordinator.release(id).catch(() => undefined).finally(() => {
-      useDashboardStore.getState().remove(id);
+      useDeviceStore.getState().remove(id);
     });
   },
 

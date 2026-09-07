@@ -8,7 +8,7 @@ export interface PollingSchedulerPort {
 
 /** 只负责时间，不包含设备业务。 */
 export class PollingScheduler implements PollingSchedulerPort {
-  private readonly jobs = new Map<string, { timer: ReturnType<typeof setInterval>; task: () => Promise<void>; paused: boolean }>();
+  private readonly jobs = new Map<string, { timer: ReturnType<typeof setTimeout> | null; task: () => Promise<void>; paused: boolean; stopped: boolean }>();
 
   constructor(
     private readonly intervalMs = 3_000,
@@ -17,20 +17,33 @@ export class PollingScheduler implements PollingSchedulerPort {
 
   register(id: string, task: () => Promise<void>): void {
     this.unregister(id);
-    const job = {
+    const job: { timer: ReturnType<typeof setTimeout> | null; task: () => Promise<void>; paused: boolean; stopped: boolean } = {
+      timer: null,
       paused: false,
+      stopped: false,
       task,
-      timer: setInterval(() => {
-        if (!job.paused) task().catch(this.onError);
-      }, this.intervalMs),
     };
     this.jobs.set(id, job);
-    task().catch(this.onError);
+    const run = async () => {
+      if (job.stopped) return;
+      if (!job.paused) {
+        try {
+          await job.task();
+        } catch (error) {
+          this.onError(error);
+        }
+      }
+      if (!job.stopped) job.timer = setTimeout(run, this.intervalMs);
+    };
+    run();
   }
 
   unregister(id: string): void {
     const job = this.jobs.get(id);
-    if (job) clearInterval(job.timer);
+    if (job) {
+      job.stopped = true;
+      if (job.timer) clearTimeout(job.timer);
+    }
     this.jobs.delete(id);
   }
 

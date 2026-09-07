@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { colors } from '../../../app/theme/colors';
 import type { RootStackParamList } from '../../../app/navigation/types';
-import { useDashboardStore } from '../hooks/dashboardStore';
+import { useDeviceStore } from '../../../interface/stores/deviceStore';
 import { dashboardManager } from '../data/dashboardManager';
 import {
   readingTone,
@@ -38,7 +38,7 @@ const STATUS_COLOR: Record<DashboardConnectionState, string> = {
 
 export function DashboardScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const devices = useDashboardStore((s) => s.devices);
+  const devices = useDeviceStore((s) => s.devices);
   const list = Object.values(devices);
 
   const openDevice = (device: DashboardDevice) => {

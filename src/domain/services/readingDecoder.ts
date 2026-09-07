@@ -1,7 +1,7 @@
 /* eslint-disable no-bitwise */
 import { ProtocolError } from '../errors';
 import type { LiveReading } from '../entities/sensorDevice';
-import type { SensorRecord } from '../ports/sensorGateway';
+import type { SensorSubRecord } from '../ports/sensorGateway';
 import { SoilEc } from '../value-objects/soilEc';
 import { SoilMoisturePercent } from '../value-objects/soilMoisture';
 import { TemperatureC } from '../value-objects/temperatureC';
@@ -23,9 +23,9 @@ export const ReadingDecoder = {
     };
   },
 
-  decodeRecord(bytes: Uint8Array): SensorRecord['subRecords'] {
+  decodeRecord(bytes: Uint8Array): SensorSubRecord[] {
     if (bytes.length !== RECORD_BYTES) throw new ProtocolError(`record length must be ${RECORD_BYTES}, got ${bytes.length}`);
-    const result: Array<Record<string, number | boolean>> = [];
+    const result: SensorSubRecord[] = [];
     for (let offset = 0; offset < bytes.length; offset += 4) {
       const byte0 = bytes[offset];
       result.push({
