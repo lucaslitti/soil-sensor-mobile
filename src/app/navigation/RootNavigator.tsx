@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ScannerScreen } from '../../features/scanner/ui/ScannerScreen';
 import { SensorDetailScreen } from '../../features/sensor/ui/SensorDetailScreen';
+import { SmartPotDetailScreen } from '../../features/sensor/ui/SmartPotDetailScreen';
 import { SettingsScreen } from '../../features/settings/SettingsScreen';
 import type { RootStackParamList } from './types';
 
@@ -14,6 +15,7 @@ export function RootNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Scanner" component={ScannerScreen} />
         <Stack.Screen name="SensorDetail" component={SensorDetailScreen} />
+        <Stack.Screen name="SmartPotDetail" component={SmartPotDetailScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

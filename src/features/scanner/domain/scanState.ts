@@ -7,6 +7,7 @@ export interface ScannedDevice {
   rssi: number;
   /** 是否可连接 */
   isConnectable: boolean;
+  protocol: 'soil-sensor' | 'smart-pot';
 }
 
 export type ScanState = 'idle' | 'scanning' | 'stopped' | 'error';

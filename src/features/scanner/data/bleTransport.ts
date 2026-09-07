@@ -4,7 +4,11 @@
  */
 import { BleManager, Device, ScanMode } from 'react-native-ble-plx';
 import { AppError } from '../../../core/errors';
-import { SCAN_TIMEOUT_MS } from '../../../core/constants/protocol';
+import {
+  SCAN_TIMEOUT_MS,
+  SENSOR_NAME_PREFIX,
+  SMART_POT_NAME_PREFIX,
+} from '../../../core/constants/protocol';
 import type { ScannedDevice } from '../domain/scanState';
 
 export const bleManager = new BleManager();
@@ -16,8 +20,7 @@ export interface ScanHandler {
 }
 
 /**
- * 扫描附近的 BLE 设备。
- * 名称在 scan response 中，Android 上可能延迟到达，UI 需容忍"名称待定"。
+ * 扫描 Soil Sensor 与 SmartPot 设备。
  */
 export function startScan(handler: ScanHandler): () => void {
   const seen = new Set<string>();
@@ -34,6 +37,13 @@ export function startScan(handler: ScanHandler): () => void {
         return;
       }
       if (!device) return;
+      const name = device.name ?? '';
+      const protocol = name.startsWith(SMART_POT_NAME_PREFIX)
+        ? 'smart-pot'
+        : name.startsWith(SENSOR_NAME_PREFIX)
+          ? 'soil-sensor'
+          : null;
+      if (!protocol) return;
       if (seen.has(device.id)) return;
       seen.add(device.id);
       handler.onFound({
@@ -41,6 +51,7 @@ export function startScan(handler: ScanHandler): () => void {
         name: device.name,
         rssi: device.rssi ?? 0,
         isConnectable: device.isConnectable ?? true,
+        protocol,
       });
     });
   } catch (error) {

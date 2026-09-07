@@ -59,7 +59,7 @@ export function ScannerScreen({ navigation }: Props) {
   }, [state]);
 
   const openDevice = (device: ScannedDevice) => {
-    navigation.navigate('SensorDetail', {
+    navigation.navigate(device.protocol === 'smart-pot' ? 'SmartPotDetail' : 'SensorDetail', {
       deviceId: device.id,
       deviceName: device.name,
     });
@@ -74,7 +74,7 @@ export function ScannerScreen({ navigation }: Props) {
       <View style={[styles.navBar, { paddingTop: 12 + insets.top }]}>
         <View>
           <Text style={styles.title}>Soil Sensor</Text>
-          <Text style={styles.subtitle}>附近设备</Text>
+          <Text style={styles.subtitle}>Soil Sensor 与 SmartPot</Text>
         </View>
         <View style={styles.navIcon}>
           <Text style={styles.navIconText}>⌁</Text>
@@ -232,7 +232,7 @@ function DeviceCard({ device, onPress }: { device: ScannedDevice; onPress: () =>
         <Text
           style={[styles.deviceState, resolving ? styles.deviceStateResolving : styles.deviceStateIdle]}
         >
-          {resolving ? '解析 GATT…' : '可连接'}
+          {resolving ? '解析 GATT…' : device.protocol === 'smart-pot' ? 'SmartPot' : 'Soil Sensor'}
         </Text>
       </View>
 
