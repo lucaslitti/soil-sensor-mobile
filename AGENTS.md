@@ -1,79 +1,74 @@
 # AGENTS.md
 
-React Native 0.87 (React 19) + TypeScript mobile app for the RYOBI soil sensor.
-Bare RN CLI (not Expo). BLE protocol facts are ported from the Web app at
-`react-soil-sensor/soil_sensor_app/src/ble_soil_sensor.jsx`.
+React Native 0.87.1 / React 19.2.3 TypeScript app for RYOBI soil sensors and
+SmartPots. This is a bare React Native CLI app, not Expo; `App.tsx` is the
+entrypoint and `src/application/compositionRoot.ts` wires the runtime.
 
 ## Commands
 
-- `npm start` — Metro dev server
-- `npm run android` / `npm run ios` — run in emulator/simulator
-- `npm run lint` — ESLint (`eslint .`, extends `@react-native`)
-- `npm test` — Jest (preset `@react-native/jest-preset`)
-- `npx tsc --noEmit` — typecheck (there is **no** `typecheck` script)
+- `npm start` starts Metro.
+- `npm run android` and `npm run ios` build and launch the app.
+- `npm run lint` runs the repository ESLint configuration.
+- `npm test` runs Jest; use `npm test -- --runInBand` for deterministic runs or
+  `npm test -- __tests__/v4-domain.test.ts` for a focused test file.
+- `npx tsc --noEmit` is the typecheck; there is no npm `typecheck` script.
 
-## Android device run (real device)
+Use Node `>=22.11.0`. After a fresh clone or native dependency change, run
+`bundle install` and then `bundle exec pod install` before iOS builds.
 
-- Port 8081 is occupied by the unrelated Java backend
-  `opee/datal-ogger/data-logger-backend`. Start Metro on 8082 and reverse-map:
-  `npx react-native start --port 8082` then
-  `adb reverse tcp:8081 tcp:8082`.
-- Install directly: `cd android && ./gradlew app:installDebug`. If it fails with
-  `Unable to delete directory ... merged_native_libs`, run `./gradlew --stop`
-  and delete `app/build/intermediates/merged_native_libs` first.
-- BLE permissions: manifest declares `BLUETOOTH_SCAN/CONNECT` (API 31+) +
-  location (API 30-); runtime request in
-  `src/features/scanner/data/permissions.ts` (asked before each scan start).
-- Build may download Gradle/deps from dl.google.com; a TLS handshake failure is
-  transient — just retry.
+## Native Development
 
-## Architecture
+- Android BLE permissions are declared in
+  `android/app/src/main/AndroidManifest.xml` and requested at runtime by
+  `src/infrastructure/ble/permissions.ts`: scan/connect on API 31+, location on
+  API 30 and below.
+- On the real Android-device workflow, port 8081 is occupied by the sibling
+  backend. Start Metro with `npx react-native start --port 8082`, then run
+  `adb reverse tcp:8081 tcp:8082`; install with
+  `cd android && ./gradlew app:installDebug`.
+- If Gradle cannot delete `merged_native_libs`, stop Gradle with
+  `./gradlew --stop` and remove `android/app/build/intermediates/merged_native_libs`
+  before retrying.
+- BLE behavior requires a real-device regression check; Jest has no real BLE.
+  Keep `react-native-ble-plx` locked unless native compatibility is deliberately
+  tested.
 
-Layered + feature-first. Protocol parsing is **pure TS** (`no react-native`
-imports) so it runs in Jest:
+## Structure
 
-```
-src/core/        constants/protocol, errors, utils (format, uuid, base64)
-src/features/
-  scanner/       data/bleTransport, domain/scanState, hooks, ui/ScannerScreen
-  sensor/        domain/codec.ts (pure), domain/historyUtil, data/gattRepository,
-                 hooks/useGattReader + useHistory, ui/SensorDetail + HistoryChart
-  settings/      SettingsScreen
-src/app/         navigation/, theme/colors
-src/shared/      components/MetricCard
-```
+- `src/domain/` contains platform-independent entities, value objects, ports,
+  policies, and `ReadingDecoder`.
+- `src/application/` contains use cases, coordinators, runtime actors, and the
+  composition root.
+- `src/infrastructure/ble/` adapts `react-native-ble-plx`; repositories and
+  scanner implementations still live under `src/features/*/data`.
+- `src/interface/` contains screens, view models, and the device store; shared
+  UI is under `src/shared/`. `src/core/` contains protocol constants and utils.
+- Keep decoding and domain logic free of `react-native` imports so it remains
+  runnable in Jest. BLE operations for one device must remain serialized by
+  `DeviceCommandQueue`; global reads are limited by `GlobalConcurrencyPool`.
 
-## Protocol facts (from Web impl — don't "fix" per intuition)
+## BLE Protocol
 
-- Live readings via GATT `00000000-0001-...` service, **3s polling**, not
-  advertising. EC live = `uint8 / 20`; EC record = `byte / 100` (different!).
-- Record service `00000000-0000-...`; characteristic UUID pattern
-  `XXYY0000-0000-726f-736e-65536c696f53` (YY=family 00 L2 / 01 L1 / 02 Latest).
-- UUIDs may be byte-swapped by different BLE stacks — always match via
-  `buildUuidVariants` (`src/core/utils/uuid.ts`).
-- Reading toggle char: write `0x01` on / `0x00` off.
-- Constants + codec golden tests in `src/core/constants/protocol.ts` and
-  `__tests__/codec.test.ts`.
+Protocol constants are in `src/core/constants/protocol.ts`; codec golden tests
+are in `__tests__/codec.test.ts`. These values come from the Web implementation
+at `react-soil-sensor/soil_sensor_app/src/ble_soil_sensor.jsx` and must not be
+changed based on intuition:
 
-## Testing gotchas
+- Live readings use the `00000000-0001-...` GATT service and 3-second polling,
+  not advertising. Live EC is `uint8 / 20`; record EC is `byte / 100`.
+- Records use `00000000-0000-...`; record-family UUIDs use `YY=00` for L2,
+  `YY=01` for L1, and `YY=02` for Latest.
+- BLE stacks can byte-swap UUIDs; use `buildUuidVariants` from
+  `src/core/utils/uuid.ts` when matching UUIDs.
+- Enable/disable live readings by writing `0x01`/`0x00` to the toggle
+  characteristic.
 
-- `jest.setup.js` mocks `react-native-ble-plx` (native module won't load in
-  Jest). `jest.config.js` adds `transformIgnorePatterns` for react-navigation/
-  svg/screens.
-- No real BLE in tests; keep codec/domain logic testable without the native
-  layer.
+## Tests and Style
 
-## Environment
-
-- Node >= 22.11.0. iOS needs `bundle install` + `bundle exec pod install`
-  before first build; re-run `pod install` after adding native deps (e.g. new
-  ble-plx/svg versions). Native dirs `ios/`, `android/`, `vendor/` are generated.
-- ble-plx: lock version + regression test on device before upgrading (new
-  architecture compat).
-
-## Style
-
-- Prettier 2.8.8: `singleQuote`, `arrowParens: avoid`, `trailingComma: all`.
-- `no-bitwise` is disabled in codec/base64/protocol files — bit ops are
-  essential for BLE parsing there.
-- TypeScript for all source; `App.tsx` is the entrypoint.
+- `jest.setup.js` mocks `react-native-ble-plx`; do not make unit tests depend on
+  the native BLE module.
+- Jest uses `@react-native/jest-preset` and explicitly transforms navigation,
+  SVG, and safe-area/screen packages through `jest.config.js`.
+- Prettier 2.8.8 uses single quotes, trailing commas, and no parentheses for a
+  single arrow parameter (`.prettierrc.js`). Bitwise parsing is intentional in
+  protocol/codec code.
