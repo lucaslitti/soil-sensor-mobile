@@ -2,18 +2,15 @@
 /**
  * Codec 黄金测试用例（协议事实直接固化）。
  */
-import {
-  decodeLive,
-  decodeRecord,
-} from '../src/features/sensor/domain/codec';
-import { CodecError } from '../src/core/errors';
+import { ReadingDecoder } from '../src/domain/services/readingDecoder';
+import { ProtocolError } from '../src/domain/errors';
 
 const u8 = (...bytes: number[]) => Uint8Array.from(bytes);
 
 describe('decodeLive', () => {
   it('解码正常实时读数', () => {
     // moist=0x28→20.0%  temp=0x1E→15.0℃  ec=0x64→5.00 mS/cm  ts=0x00000001→1s
-    const r = decodeLive(u8(0x28), u8(0x1e), u8(0x64), u8(0x01, 0, 0, 0));
+    const r = ReadingDecoder.decodeLive(u8(0x28), u8(0x1e), u8(0x64), u8(0x01, 0, 0, 0));
     expect(r.moisturePercent).toBe(20.0);
     expect(r.temperatureC).toBe(15.0);
     expect(r.soilEc).toBe(5.0);
@@ -22,7 +19,7 @@ describe('decodeLive', () => {
   });
 
   it('EC 实时路径为 /20', () => {
-    expect(decodeLive(u8(0), u8(0), u8(0xff), u8(0, 0, 0, 0)).soilEc).toBeCloseTo(
+    expect(ReadingDecoder.decodeLive(u8(0), u8(0), u8(0xff), u8(0, 0, 0, 0)).soilEc).toBeCloseTo(
       0xff / 20,
       6,
     );
@@ -30,22 +27,22 @@ describe('decodeLive', () => {
 
   it('负温符号扩展', () => {
     // int8 0xEC = -20 -> -10.0℃
-    expect(decodeLive(u8(0), u8(0xec), u8(0), u8(0, 0, 0, 0)).temperatureC).toBe(
+    expect(ReadingDecoder.decodeLive(u8(0), u8(0xec), u8(0), u8(0, 0, 0, 0)).temperatureC).toBe(
       -10.0,
     );
   });
 
   it('时间戳为 0 时回退当前时间', () => {
-    const r = decodeLive(u8(0), u8(0), u8(0), u8(0, 0, 0, 0));
+    const r = ReadingDecoder.decodeLive(u8(0), u8(0), u8(0), u8(0, 0, 0, 0));
     expect(r.timestamp).toBeGreaterThan(0);
   });
 
-  it('字节数不足抛 CodecError', () => {
-    expect(() => decodeLive(u8(), u8(0), u8(0), u8(0, 0, 0, 0))).toThrow(
-      CodecError,
+  it('字节数不足抛 ProtocolError', () => {
+    expect(() => ReadingDecoder.decodeLive(u8(), u8(0), u8(0), u8(0, 0, 0, 0))).toThrow(
+      ProtocolError,
     );
-    expect(() => decodeLive(u8(0), u8(0), u8(0), u8(0, 0, 0))).toThrow(
-      CodecError,
+    expect(() => ReadingDecoder.decodeLive(u8(0), u8(0), u8(0), u8(0, 0, 0))).toThrow(
+      ProtocolError,
     );
   });
 });
@@ -58,7 +55,7 @@ describe('decodeRecord', () => {
     rec[1] = 0x28;
     rec[2] = 0x1e;
     rec[3] = 0x64;
-    const subs = decodeRecord(rec);
+    const subs = ReadingDecoder.decodeRecord(rec);
     expect(subs).toHaveLength(8);
     expect(subs[0]).toMatchObject({
       recordIndex: 0x03,
@@ -72,15 +69,15 @@ describe('decodeRecord', () => {
   it('EC 记录路径为 /100', () => {
     const rec = new Uint8Array(32);
     rec[3] = 100; // -> 1.00 mS/cm
-    expect(decodeRecord(rec)[0].soilEc).toBe(1.0);
+    expect(ReadingDecoder.decodeRecord(rec)[0].soilEc).toBe(1.0);
   });
 
   it('空子记录判定', () => {
     const rec = new Uint8Array(32);
-    expect(decodeRecord(rec)[0].isEmpty).toBe(true);
+    expect(ReadingDecoder.decodeRecord(rec)[0].isEmpty).toBe(true);
   });
 
-  it('非法长度抛 CodecError', () => {
-    expect(() => decodeRecord(new Uint8Array(31))).toThrow(CodecError);
+  it('非法长度抛 ProtocolError', () => {
+    expect(() => ReadingDecoder.decodeRecord(new Uint8Array(31))).toThrow(ProtocolError);
   });
 });

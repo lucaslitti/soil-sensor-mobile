@@ -8,7 +8,13 @@ export interface PollingSchedulerPort {
 
 /** 只负责时间，不包含设备业务。 */
 export class PollingScheduler implements PollingSchedulerPort {
-  private readonly jobs = new Map<string, { timer: ReturnType<typeof setTimeout> | null; task: () => Promise<void>; paused: boolean; stopped: boolean }>();
+  private readonly jobs = new Map<string, {
+    timer: ReturnType<typeof setTimeout> | null;
+    task: () => Promise<void>;
+    paused: boolean;
+    stopped: boolean;
+    running: boolean;
+  }>();
 
   constructor(
     private readonly intervalMs = 3_000,
@@ -17,20 +23,31 @@ export class PollingScheduler implements PollingSchedulerPort {
 
   register(id: string, task: () => Promise<void>): void {
     this.unregister(id);
-    const job: { timer: ReturnType<typeof setTimeout> | null; task: () => Promise<void>; paused: boolean; stopped: boolean } = {
+    const job: {
+      timer: ReturnType<typeof setTimeout> | null;
+      task: () => Promise<void>;
+      paused: boolean;
+      stopped: boolean;
+      running: boolean;
+    } = {
       timer: null,
       paused: false,
       stopped: false,
+      running: false,
       task,
     };
     this.jobs.set(id, job);
     const run = async () => {
       if (job.stopped) return;
       if (!job.paused) {
+        if (job.running) return;
+        job.running = true;
         try {
           await job.task();
         } catch (error) {
           this.onError(error);
+        } finally {
+          job.running = false;
         }
       }
       if (!job.stopped) job.timer = setTimeout(run, this.intervalMs);

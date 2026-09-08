@@ -16,3 +16,48 @@ export interface SmartPotSnapshot {
   config: string;
   history: SmartPotHistoryPoint[];
 }
+
+export function parseSmartPotHistory(raw: string): SmartPotHistoryPoint[] {
+  const text = raw.trim();
+  if (!text || text === 'end' || text === 'n=0' || text.startsWith('ERR:')) return [];
+  const payload = text.startsWith('n=') ? text.split(';').slice(1).join(';') : text;
+  return payload.split(/[;,]/).reduce<SmartPotHistoryPoint[]>((points, item) => {
+    const values = item.trim().split(':').map(Number);
+    if (values.length === 4 && values.every(Number.isFinite)) {
+      points.push({ timestamp: values[0], soil: values[1], temperature: values[2], lux: values[3] });
+    }
+    return points;
+  }, []);
+}
+
+export function validateSmartPotConfig(value: string): string | null {
+  const fields = new Map<string, string>();
+  for (const part of value.split(',')) {
+    const [key, raw] = part.split('=', 2);
+    if (!key || raw === undefined) return 'Config must be key=value pairs separated by commas';
+    fields.set(key.trim().toLowerCase(), raw.trim());
+  }
+  const number = (key: string) => Number(fields.get(key));
+  const duration = (key: string) => {
+    const match = fields.get(key)?.match(/^(\d+(?:\.\d+)?)\s*([hms]?)$/i);
+    if (!match) return NaN;
+    const multiplier = match[2].toLowerCase() === 'h' ? 3600 : match[2].toLowerCase() === 'm' ? 60 : 1;
+    return Math.round(Number(match[1]) * multiplier);
+  };
+  if (fields.has('l') && fields.has('h') && (!Number.isFinite(number('l')) || !Number.isFinite(number('h')) || number('l') >= number('h'))) return 'Watering thresholds must satisfy l < h';
+  if (fields.has('lon') && fields.has('loff') && (!Number.isInteger(number('lon')) || !Number.isInteger(number('loff')) || number('lon') < 0 || number('loff') < 0 || number('lon') >= number('loff'))) return 'Light thresholds must satisfy lon < loff';
+  for (const key of ['d', 'i', 'ld', 'li']) {
+    if (fields.has(key) && (!Number.isInteger(duration(key)) || duration(key) < 0 || duration(key) > 65535)) return `${key} must be a number of seconds between 0 and 65535`;
+  }
+  if ((fields.has('d') && duration('d') === 0) || (fields.has('i') && duration('i') === 0)) return 'Watering duration and interval must be greater than 0';
+  if (fields.get('ace') === '1') {
+    const start = fields.get('cs');
+    const end = fields.get('ce');
+    if (!start || !end || !/^([01]\d|2[0-3]):[0-5]\d$/.test(start) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(end) || start >= end) return 'When care time is enabled, cs and ce must be increasing HH:MM values';
+  }
+  return null;
+}
+
+export function isSmartPotAutoMode(config: string): boolean {
+  return /(?:^|[,;])\s*(?:am|automode)\s*=\s*(?:1|true|on)\b/i.test(config);
+}

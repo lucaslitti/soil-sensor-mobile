@@ -2,6 +2,7 @@ import type { DeviceConnection } from '../../domain/entities/deviceSession';
 import type { DeviceId } from '../../domain/value-objects/deviceId';
 import { DeviceActor } from './deviceActor';
 import type { OperationId, SessionId } from './operationContext';
+import type { OperationObserver } from '../ports/operationObserver';
 
 export type RuntimeConnectionState = 'disconnected' | 'connecting' | 'connected' | 'disconnecting';
 export type RuntimeOperationState = 'idle' | 'polling' | 'history' | 'reconnecting' | 'suspended';
@@ -16,8 +17,9 @@ export class DeviceRuntime {
     readonly deviceId: DeviceId,
     readonly sessionId: SessionId,
     private readonly isCurrentSession: (sessionId: SessionId) => boolean,
+    observer?: OperationObserver,
   ) {
-    this.actor = new DeviceActor(isCurrentSession);
+    this.actor = new DeviceActor(isCurrentSession, observer);
   }
 
   operationId(prefix: string): OperationId {

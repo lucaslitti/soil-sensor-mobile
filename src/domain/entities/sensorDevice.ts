@@ -4,10 +4,7 @@ import type { DeviceId } from '../value-objects/deviceId';
 export type SensorConnectionState =
   | 'disconnected'
   | 'connecting'
-  | 'ready'
-  | 'polling'
-  | 'readingHistory'
-  | 'disconnecting'
+  | 'connected'
   | 'failed';
 
 export interface LiveReading {
@@ -16,6 +13,9 @@ export interface LiveReading {
   soilEc: number;
   timestamp: number;
   source: 'gatt';
+  receivedAt?: number;
+  sessionId?: string;
+  operationId?: string;
 }
 
 export class SensorDevice {
@@ -55,32 +55,15 @@ export class SensorDevice {
     this._error = null;
   }
 
-  markReady(): void {
+  markConnected(): void {
     if (this._state !== 'connecting') throw new Error('Device is not connecting');
-    this._state = 'ready';
-  }
-
-  startPolling(): void {
-    if (this._state !== 'ready' && this._state !== 'polling') {
-      throw new Error(`Cannot start polling from ${this._state}`);
-    }
-    this._state = 'polling';
-  }
-
-  startHistoryReading(): void {
-    if (this._state !== 'polling') throw new Error('History requires polling state');
-    this._state = 'readingHistory';
-  }
-
-  finishHistoryReading(): void {
-    if (this._state !== 'readingHistory') throw new Error('Device is not reading history');
-    this._state = 'polling';
+    this._state = 'connected';
   }
 
   applyReading(reading: LiveReading): void {
     this._latestReading = reading;
     this._lastActiveAt = reading.timestamp;
-    this._state = 'polling';
+    this._state = 'connected';
     this._error = null;
   }
 
@@ -91,10 +74,6 @@ export class SensorDevice {
   markFailed(error: string): void {
     this._state = 'failed';
     this._error = error;
-  }
-
-  disconnect(): void {
-    this._state = 'disconnecting';
   }
 
   markDisconnected(): void {

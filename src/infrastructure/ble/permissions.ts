@@ -1,4 +1,5 @@
 import { PermissionsAndroid, Platform } from 'react-native';
+import type { PermissionGateway } from '../../application/ports/permissionGateway';
 
 export async function requestBluetoothPermissions(): Promise<boolean> {
   if (Platform.OS !== 'android') return true;
@@ -11,4 +12,10 @@ export async function requestBluetoothPermissions(): Promise<boolean> {
   }
   const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
   return granted === PermissionsAndroid.RESULTS.GRANTED;
+}
+
+export class ReactNativePermissionGateway implements PermissionGateway {
+  requestBluetooth(): Promise<boolean> {
+    return requestBluetoothPermissions();
+  }
 }

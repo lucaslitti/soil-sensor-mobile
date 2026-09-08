@@ -11,10 +11,13 @@ import type { PollingCoordinator } from '../coordinators/pollingCoordinator';
 import type { ConnectionPoolPort } from '../ports/connectionPool';
 import type { ConcurrencyPool } from '../ports/concurrencyPool';
 import type { CancellationToken } from '../runtime/cancellationToken';
+import type { ReadingRepository } from '../../domain/repositories/readingRepository';
+import type { OperationContext } from '../runtime/operationContext';
 
 export class DeviceCoordinator {
   private readonly devices = new Map<string, SensorDevice>();
-  private readonly runtimeManager = new DeviceManager();
+  private readonly scannedDevices = new Map<string, ScannedDevice>();
+  private readonly runtimeManager: DeviceManager;
   private readonly reads: ConcurrencyPool;
 
   constructor(
@@ -25,9 +28,12 @@ export class DeviceCoordinator {
     private readonly events: DomainEventPublisher,
     private readonly polling: PollingCoordinator,
     reads: ConcurrencyPool,
+    runtimeManager: DeviceManager,
+    private readonly readingRepository: ReadingRepository,
     private readonly recovery = new RecoveryCoordinator(),
   ) {
     this.reads = reads;
+    this.runtimeManager = runtimeManager;
   }
 
   async connect(device: ScannedDevice): Promise<void> {
@@ -53,6 +59,7 @@ export class DeviceCoordinator {
 
     const domainDevice = current ?? new SensorDevice(device.id, device.name);
     this.devices.set(id, domainDevice);
+    this.scannedDevices.set(id, device);
     domainDevice.markConnecting();
     this.events.publish({ type: 'DeviceStateChanged', deviceId: id, state: 'connecting' });
 
@@ -70,8 +77,7 @@ export class DeviceCoordinator {
         runtime.connection = 'connected';
         runtime.operation = 'polling';
       }
-      domainDevice.markReady();
-      domainDevice.startPolling();
+      domainDevice.markConnected();
       this.events.publish({ type: 'DeviceStateChanged', deviceId: id, state: 'polling' });
       this.polling.register(id, () => this.poll(device));
     } catch (error) {
@@ -95,20 +101,61 @@ export class DeviceCoordinator {
     this.pool.release(DeviceId.create(id));
     this.runtimeManager.remove(DeviceId.create(id));
     this.devices.delete(id);
+    this.scannedDevices.delete(id);
     this.events.publish({ type: 'DeviceDisconnected', deviceId: id });
+  }
+
+  async refresh(id: string): Promise<void> {
+    const device = this.scannedDevices.get(id);
+    if (!device) return;
+    await this.poll(device);
+  }
+
+  pause(id: string): void {
+    this.polling.pause(id);
+  }
+
+  startPolling(id: string): Promise<void> {
+    this.polling.resume(id);
+    return Promise.resolve();
+  }
+
+  stopPolling(id: string): Promise<void> {
+    this.polling.pause(id);
+    return Promise.resolve();
+  }
+
+  resume(id: string): void {
+    this.polling.resume(id);
+  }
+
+  writeSmartPot(
+    id: string,
+    command: { type: 'light'; value: 'on' | 'off' } | { type: 'pump' | 'rgb' | 'config'; value: string },
+  ): Promise<void> {
+    const connection = this.runtimeManager.getConnection(DeviceId.create(id));
+    if (!connection || connection.protocol !== 'smart-pot') throw new Error('SmartPot is not connected');
+    return this.execute(id, 'user-action', async () => {
+      if (command.type === 'light') await this.smartPotGateway.writeLight(connection, command.value);
+      if (command.type === 'pump') await this.smartPotGateway.writePump(connection, command.value);
+      if (command.type === 'rgb') await this.smartPotGateway.writeRgb(connection, command.value);
+      if (command.type === 'config') await this.smartPotGateway.writeConfig(connection, command.value);
+    });
   }
 
   async readHistory(id: string, level: 'latest' | 'l1' | 'l2' | 'all', token?: CancellationToken): Promise<readonly import('../../domain/ports/sensorGateway').SensorRecord[]> {
     const connection = this.runtimeManager.getConnection(DeviceId.create(id));
     if (!connection) throw new Error('Device is not connected');
-    return this.execute(id, 'history', async () => {
+    return this.execute(id, 'history', async context => {
       token?.throwIfCancelled();
       const runtime = this.runtimeManager.get(DeviceId.create(id));
       if (runtime) runtime.operation = 'history';
       this.polling.pause(id);
       try {
-        const records = await this.reads.run(() => this.sensorGateway.readHistory(connection, level));
+        const records = await this.sensorGateway.readHistory(connection, level);
         token?.throwIfCancelled();
+        for (const record of records) await this.readingRepository.save({ ...record, receivedAt: Date.now(), sessionId: context.sessionId, operationId: context.operationId, source: 'gatt' });
+        this.events.publish({ type: 'HistorySynced', deviceId: id, count: records.length });
         return records;
       } finally {
         const activeRuntime = this.runtimeManager.get(DeviceId.create(id));
@@ -134,28 +181,29 @@ export class DeviceCoordinator {
   private async poll(device: ScannedDevice): Promise<void> {
     const connection = this.runtimeManager.getConnection(device.id);
     if (!connection) return;
-    await this.execute(device.id.value, 'poll', () => this.reads.run(async () => {
+    await this.execute(device.id.value, 'poll', async context => {
       if (device.protocol === 'smart-pot') {
         const snapshot = await this.smartPotGateway.readSnapshot(connection);
         this.events.publish({ type: 'SmartPotSnapshotUpdated', deviceId: device.id.value, snapshot });
       } else {
-        const reading = await this.sensorGateway.readLive(connection);
+        const reading = { ...await this.sensorGateway.readLive(connection), receivedAt: Date.now(), sessionId: context.sessionId, operationId: context.operationId };
         this.devices.get(device.id.value)?.applyReading(reading);
         this.events.publish({ type: 'ReadingUpdated', deviceId: device.id.value, reading });
       }
-    }));
+    });
   }
 
-  private execute<T>(id: string, prefix: string, run: () => Promise<T>): Promise<T> {
+  private execute<T>(id: string, prefix: string, run: (context: OperationContext) => Promise<T>): Promise<T> {
     const deviceId = DeviceId.create(id);
     const runtime = this.runtimeManager.create(deviceId);
-    return this.runtimeManager.execute(deviceId, {
-      context: {
+    const context = {
         deviceId,
         sessionId: runtime.sessionId,
         operationId: runtime.operationId(prefix),
-      },
-      run,
+    };
+    return this.runtimeManager.execute(deviceId, {
+      context,
+      run: () => this.reads.run(() => run(context), context),
     });
   }
 }

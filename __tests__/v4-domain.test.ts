@@ -1,4 +1,3 @@
-import { DeviceSession } from '../src/domain/entities/deviceSession';
 import { SensorDevice } from '../src/domain/entities/sensorDevice';
 import { ConnectionPolicy } from '../src/domain/services/connectionPolicy';
 import { DeviceId } from '../src/domain/value-objects/deviceId';
@@ -15,15 +14,9 @@ describe('V4 domain', () => {
   it('enforces SensorDevice and DeviceSession lifecycle transitions', () => {
     const id = DeviceId.create('sensor-1');
     const device = new SensorDevice(id, 'Soil Sensor-1');
-    const session = new DeviceSession(id, 'session-1');
     device.markConnecting();
-    session.beginConnect();
-    session.attach({ deviceId: id });
-    device.markReady();
-    device.startPolling();
-    session.startPolling();
-    expect(device.state).toBe('polling');
-    expect(session.state).toBe('polling');
+    device.markConnected();
+    expect(device.state).toBe('connected');
   });
 
   it('selects only idle devices for the four-device eviction policy', () => {
@@ -31,8 +24,7 @@ describe('V4 domain', () => {
     const devices = Array.from({ length: 4 }, (_, i) => {
       const device = new SensorDevice(DeviceId.create(`sensor-${i}`), null);
       device.markConnecting();
-      device.markReady();
-      device.startPolling();
+      device.markConnected();
       device.applyReading({ moisturePercent: 1, temperatureC: 1, soilEc: 1, timestamp: i, source: 'gatt' });
       return device;
     });

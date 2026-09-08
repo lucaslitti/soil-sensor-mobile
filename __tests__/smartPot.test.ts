@@ -1,4 +1,4 @@
-import { parseSmartPotHistory, validateSmartPotConfig } from '../src/features/sensor/domain/smartPot';
+import { parseSmartPotHistory, validateSmartPotConfig } from '../src/domain/entities/smartPot';
 
 describe('parseSmartPotHistory', () => {
   it('parses paged history metadata and records', () => {

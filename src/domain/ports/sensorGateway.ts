@@ -16,6 +16,10 @@ export interface SensorRecord {
   deviceId: string;
   capturedAt: number;
   subRecords: readonly SensorSubRecord[];
+  receivedAt?: number;
+  sessionId?: string;
+  operationId?: string;
+  source?: 'gatt';
 }
 
 export interface SensorSubRecord {

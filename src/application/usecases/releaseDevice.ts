@@ -1,8 +1,8 @@
-import type { DeviceCoordinator } from '../services/deviceCoordinator';
+import type { DeviceManager } from '../runtime/deviceManager';
 
 export class ReleaseDeviceUseCase {
-  constructor(private readonly coordinator: DeviceCoordinator) {}
+  constructor(private readonly manager: DeviceManager) {}
   execute(deviceId: string): Promise<void> {
-    return this.coordinator.release(deviceId);
+    return this.manager.disconnect(deviceId);
   }
 }

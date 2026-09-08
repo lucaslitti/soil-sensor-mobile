@@ -1,6 +1,6 @@
 import type { Device } from 'react-native-ble-plx';
-import { gattRepository } from '../../features/sensor/data/gattRepository';
-import { startScan } from '../../features/scanner/data/bleTransport';
+import { startScan } from './bleTransport';
+import { BleSoilSensorProtocolAdapter } from './protocols/soilSensorProtocolAdapter';
 import type { DeviceConnection } from '../../domain/entities/deviceSession';
 import type { LiveReading } from '../../domain/entities/sensorDevice';
 import type { SensorGateway, ScannedDevice } from '../../domain/ports/sensorGateway';
@@ -9,6 +9,7 @@ import { DeviceId } from '../../domain/value-objects/deviceId';
 
 export class BleSensorGateway implements SensorGateway {
   private readonly devices = new Map<string, Device>();
+  private readonly protocol = new BleSoilSensorProtocolAdapter();
 
   async *scan(): AsyncGenerator<ScannedDevice> {
     const queue: ScannedDevice[] = [];
@@ -18,7 +19,6 @@ export class BleSensorGateway implements SensorGateway {
       onFound: device => {
         queue.push({
           ...device,
-          id: DeviceId.create(device.id),
         });
         resolve?.();
         resolve = null;
@@ -44,32 +44,32 @@ export class BleSensorGateway implements SensorGateway {
 
   async connect(id: DeviceId, protocol: 'soil-sensor' | 'smart-pot' = 'soil-sensor'): Promise<DeviceConnection> {
     if (protocol !== 'soil-sensor') throw new Error('Use SmartPotGateway for SmartPot devices');
-    const device = await gattRepository.connect(id.value);
+    const device = await this.protocol.connect(id.value);
     this.devices.set(id.value, device);
-    await gattRepository.setReadingEnabled(device, true);
+    await this.protocol.setReadingEnabled(device, true);
     return { deviceId: id, protocol, native: device };
   }
 
   async disconnect(connection: DeviceConnection): Promise<void> {
     const device = this.deviceOf(connection);
     this.devices.delete(connection.deviceId.value);
-    await gattRepository.setReadingEnabled(device, false).catch(() => undefined);
-    await gattRepository.disconnect(device);
+    await this.protocol.setReadingEnabled(device, false).catch(() => undefined);
+    await this.protocol.disconnect(device);
   }
 
   async readLive(connection: DeviceConnection): Promise<LiveReading> {
-    return gattRepository.readLive(this.deviceOf(connection));
+    return this.protocol.readLive(this.deviceOf(connection));
   }
 
   async readHistory(connection: DeviceConnection, level: HistoryLevel): Promise<readonly SensorRecord[]> {
     const device = this.deviceOf(connection);
     const read = async (target: 'latest' | 'l1' | 'l2') => {
-      if (target === 'latest') return gattRepository.readLatest(device);
-      if (target === 'l1') return gattRepository.readL1(device);
-      return gattRepository.readL2(device);
+      if (target === 'latest') return this.protocol.readLatest(device);
+      if (target === 'l1') return this.protocol.readL1(device);
+      return this.protocol.readL2(device);
     };
     const subRecords = level === 'all'
-      ? [...await read('l2'), ...await read('l1')]
+      ? [...await read('latest'), ...await read('l1'), ...await read('l2')]
       : await read(level);
     return [{ deviceId: connection.deviceId.value, capturedAt: Date.now(), subRecords }];
   }
