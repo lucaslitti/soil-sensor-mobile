@@ -47,7 +47,6 @@ export function SmartPotDetailScreen({ route, navigation }: Props) {
       started.current = true;
        run(connect());
     }
-    return () => { run(disconnect()); };
   }, [connect, deviceId, deviceName, disconnect]);
 
   useEffect(() => {

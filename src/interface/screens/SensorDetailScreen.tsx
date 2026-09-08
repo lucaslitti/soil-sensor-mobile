@@ -38,9 +38,6 @@ export function SensorDetailScreen({ route, navigation }: Props) {
       connectStartedRef.current = true;
       connect(deviceId, deviceName);
     }
-    return () => {
-      disconnect();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId]);
 
