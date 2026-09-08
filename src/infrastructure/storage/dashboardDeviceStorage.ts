@@ -1,4 +1,5 @@
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
+import { MMKV } from 'react-native-mmkv';
 
 const STORAGE_KEY = '@ryobi/dashboard-devices';
 
@@ -10,19 +11,11 @@ type StoredDevice = {
   isConnectable: boolean;
 };
 
-// MMKV is resolved lazily so domain/application tests do not load a native module.
-type Storage = { getString(key: string): string | undefined; set(key: string, value: string): void };
-let memoryValue: string | null = null;
-function storage(): Storage {
-  try {
-    const { MMKV } = require('react-native-mmkv') as { MMKV: new (options: { id: string }) => Storage };
-    return new MMKV({ id: 'ryobi-devices' });
-  } catch {
-    return {
-      getString: () => memoryValue ?? undefined,
-      set: (_key, value) => { memoryValue = value; },
-    };
-  }
+let storageInstance: MMKV | null = null;
+
+function storage(): MMKV {
+  if (!storageInstance) storageInstance = new MMKV({ id: 'ryobi-devices' });
+  return storageInstance;
 }
 
 export async function loadDashboardDevices(): Promise<StoredDevice[]> {

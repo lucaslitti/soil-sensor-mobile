@@ -13,7 +13,7 @@ import {
 } from '../../infrastructure/storage/dashboardDeviceStorage';
 
 let subscribed = false;
-let restored = false;
+let restorePromise: Promise<void> | null = null;
 
 function ensureEventProjection(): void {
   if (subscribed) return;
@@ -53,10 +53,17 @@ export const dashboardManager = {
   },
 
   async restore(): Promise<void> {
-    if (restored) return;
-    restored = true;
-    const devices = await loadDashboardDevices();
-    devices.forEach(device => this.add({ ...device, id: DeviceId.create(device.id) }));
+    if (Object.keys(useDeviceStore.getState().devices).length > 0) return;
+    if (restorePromise) return restorePromise;
+    restorePromise = (async () => {
+      const devices = await loadDashboardDevices();
+      devices.forEach(device => this.add({ ...device, id: DeviceId.create(device.id) }));
+    })();
+    try {
+      await restorePromise;
+    } finally {
+      restorePromise = null;
+    }
   },
 
   reconnect(device: ScannedDevice): void {

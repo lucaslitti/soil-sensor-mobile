@@ -1,6 +1,7 @@
 import type { DeviceRepository } from '../../../domain/repositories/deviceRepository';
 import type { SensorDevice } from '../../../domain/entities/sensorDevice';
 import type { DeviceId } from '../../../domain/value-objects/deviceId';
+import { MMKV } from 'react-native-mmkv';
 
 type MetadataStore = { getString(key: string): string | undefined; set(key: string, value: string): void };
 
@@ -10,13 +11,7 @@ export class MmkvDeviceRepository implements DeviceRepository {
   private readonly metadata: MetadataStore;
 
   constructor() {
-    try {
-      const { MMKV } = require('react-native-mmkv') as { MMKV: new (options: { id: string }) => MetadataStore };
-      this.metadata = new MMKV({ id: 'ryobi-device-metadata' });
-    } catch {
-      const values = new Map<string, string>();
-      this.metadata = { getString: key => values.get(key), set: (key, value) => values.set(key, value) };
-    }
+    this.metadata = new MMKV({ id: 'ryobi-device-metadata' });
   }
 
   get(id: DeviceId): Promise<SensorDevice | null> { return Promise.resolve(this.devices.get(id.value) ?? null); }
