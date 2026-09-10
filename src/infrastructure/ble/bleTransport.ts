@@ -1,6 +1,6 @@
 import { BleManager, type Device, ScanMode } from 'react-native-ble-plx';
-import { AppError } from '../../core/errors';
-import { SCAN_TIMEOUT_MS, SENSOR_NAME_PREFIX, SMART_POT_NAME_PREFIX } from '../../core/constants/protocol';
+import { AppError } from './errors';
+import { SCAN_TIMEOUT_MS, SENSOR_NAME_PREFIX, SMART_POT_NAME_PREFIX } from './protocol';
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
 import { DeviceId } from '../../domain/value-objects/deviceId';
 import { logBleError } from './bleLogger';

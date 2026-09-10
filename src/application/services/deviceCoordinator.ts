@@ -13,6 +13,7 @@ import type { ConcurrencyPool } from '../ports/concurrencyPool';
 import type { CancellationToken } from '../runtime/cancellationToken';
 import type { ReadingRepository } from '../../domain/repositories/readingRepository';
 import type { OperationContext } from '../runtime/operationContext';
+import type { DeviceCommandKind } from '../runtime/deviceCommand';
 
 export class DeviceCoordinator {
   private readonly devices = new Map<string, SensorDevice>();
@@ -153,6 +154,7 @@ export class DeviceCoordinator {
       this.polling.pause(id);
       try {
         const records = await this.sensorGateway.readHistory(connection, level);
+        if (!this.isCurrent(context)) return [];
         token?.throwIfCancelled();
         for (const record of records) await this.readingRepository.save({ ...record, receivedAt: Date.now(), sessionId: context.sessionId, operationId: context.operationId, source: 'gatt' });
         this.events.publish({ type: 'HistorySynced', deviceId: id, count: records.length });
@@ -184,9 +186,12 @@ export class DeviceCoordinator {
     await this.execute(device.id.value, 'poll', async context => {
       if (device.protocol === 'smart-pot') {
         const snapshot = await this.smartPotGateway.readSnapshot(connection);
+        if (!this.isCurrent(context)) return;
         this.events.publish({ type: 'SmartPotSnapshotUpdated', deviceId: device.id.value, snapshot });
       } else {
-        const reading = { ...await this.sensorGateway.readLive(connection), receivedAt: Date.now(), sessionId: context.sessionId, operationId: context.operationId };
+        const decoded = await this.sensorGateway.readLive(connection);
+        if (!this.isCurrent(context)) return;
+        const reading = { ...decoded, receivedAt: Date.now(), sessionId: context.sessionId, operationId: context.operationId };
         this.devices.get(device.id.value)?.applyReading(reading);
         this.events.publish({ type: 'ReadingUpdated', deviceId: device.id.value, reading });
       }
@@ -197,13 +202,18 @@ export class DeviceCoordinator {
     const deviceId = DeviceId.create(id);
     const runtime = this.runtimeManager.create(deviceId);
     const context = {
-        deviceId,
-        sessionId: runtime.sessionId,
-        operationId: runtime.operationId(prefix),
+      deviceId,
+      sessionId: runtime.sessionId,
+      operationId: runtime.operationId(prefix),
     };
     return this.runtimeManager.execute(deviceId, {
       context,
+      kind: prefix as DeviceCommandKind,
       run: () => this.reads.run(() => run(context), context),
     });
+  }
+
+  private isCurrent(context: OperationContext): boolean {
+    return this.runtimeManager.get(context.deviceId)?.sessionId === context.sessionId;
   }
 }

@@ -1,6 +1,6 @@
 import type { Device } from 'react-native-ble-plx';
-import { AppError } from '../../../core/errors';
-import { base64ToBytes, bytesToBase64 } from '../../../core/utils/base64';
+import { AppError } from '../errors';
+import { base64ToBytes, bytesToBase64 } from '../base64';
 import {
   SMART_POT_CHAR_HISTORY,
   SMART_POT_CHAR_LIGHT,
@@ -12,7 +12,7 @@ import {
   SMART_POT_CHAR_SOIL_MOISTURE,
   SMART_POT_CHAR_SOIL_TEMPERATURE,
   SMART_POT_SERVICE,
-} from '../../../core/constants/protocol';
+} from '../protocol';
 import { parseSmartPotHistory } from '../../../domain/entities/smartPot';
 import type { SmartPotSnapshot } from '../../../domain/entities/smartPot';
 import { bleManager } from '../bleTransport';

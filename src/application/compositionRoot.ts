@@ -23,6 +23,10 @@ import { StopPollingUseCase } from './usecases/stopPolling';
 import { ReleaseDeviceUseCase } from './usecases/releaseDevice';
 import { OperationLogger } from '../infrastructure/observability/logger';
 import { ReactNativePermissionGateway } from '../infrastructure/ble/permissions';
+import {
+  loadDashboardDevices,
+  saveDashboardDevices,
+} from '../infrastructure/storage/dashboardDeviceStorage';
 
 export const applicationEvents = new ApplicationEventBus();
 export const sensorGateway = new BleSensorGateway();
@@ -38,6 +42,10 @@ export const pollingCoordinator = new PollingCoordinator(
 export const globalConcurrencyPool = new GlobalConcurrencyPool(2);
 export const deviceManager = new DeviceManager(new OperationLogger());
 export const readingRepository = new SqliteReadingRepository();
+export const dashboardDeviceStorage = {
+  load: loadDashboardDevices,
+  save: saveDashboardDevices,
+};
 export const deviceCoordinator = new DeviceCoordinator(
   sensorGateway,
   smartPotGateway,
@@ -50,23 +58,14 @@ export const deviceCoordinator = new DeviceCoordinator(
   readingRepository,
   recoveryCoordinator,
 );
-deviceManager.bind({
-  connect: device => deviceCoordinator.connect(device),
-  disconnect: id => deviceCoordinator.release(id),
-  refresh: id => deviceCoordinator.refresh(id),
-  readHistory: (id, level, token) => deviceCoordinator.readHistory(id, level, token),
-  writeSmartPot: (id, command) => deviceCoordinator.writeSmartPot(id, command),
-  startPolling: id => deviceCoordinator.startPolling(id),
-  stopPolling: id => deviceCoordinator.stopPolling(id),
-});
-export const connectDeviceUseCase = new ConnectDeviceUseCase(deviceManager);
-export const disconnectDeviceUseCase = new DisconnectDeviceUseCase(deviceManager);
-export const readHistoryUseCase = new ReadHistoryUseCase(deviceManager);
-export const readLiveUseCase = new ReadLiveUseCase(deviceManager);
-export const controlSmartPotUseCase = new ControlSmartPotUseCase(deviceManager);
-export const startPollingUseCase = new StartPollingUseCase(id => deviceManager.startPolling(id));
-export const stopPollingUseCase = new StopPollingUseCase(id => deviceManager.stopPolling(id));
-export const releaseDeviceUseCase = new ReleaseDeviceUseCase(deviceManager);
+export const connectDeviceUseCase = new ConnectDeviceUseCase(deviceCoordinator);
+export const disconnectDeviceUseCase = new DisconnectDeviceUseCase(deviceCoordinator);
+export const readHistoryUseCase = new ReadHistoryUseCase(deviceCoordinator);
+export const readLiveUseCase = new ReadLiveUseCase(deviceCoordinator);
+export const controlSmartPotUseCase = new ControlSmartPotUseCase(deviceCoordinator);
+export const startPollingUseCase = new StartPollingUseCase(id => deviceCoordinator.startPolling(id));
+export const stopPollingUseCase = new StopPollingUseCase(id => deviceCoordinator.stopPolling(id));
+export const releaseDeviceUseCase = new ReleaseDeviceUseCase(deviceCoordinator);
 export const scanDevicesUseCase = new ScanDevicesUseCase(sensorGateway, new ReactNativePermissionGateway());
 export const deviceLifecycleCoordinator = new LifecycleCoordinator(
   new ReactNativeLifecycle(),

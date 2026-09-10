@@ -1,1 +1,1 @@
-export { buildUuidVariants } from '../../core/utils/uuid';
+export { buildUuidVariants } from './uuid';

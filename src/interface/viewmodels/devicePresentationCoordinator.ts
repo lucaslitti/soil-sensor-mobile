@@ -3,14 +3,11 @@ import {
   connectDeviceUseCase,
   disconnectDeviceUseCase,
   readLiveUseCase,
+  dashboardDeviceStorage,
 } from '../../application/compositionRoot';
 import { DeviceId } from '../../domain/value-objects/deviceId';
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
 import { useDeviceStore } from '../stores/deviceStore';
-import {
-  loadDashboardDevices,
-  saveDashboardDevices,
-} from '../../infrastructure/storage/dashboardDeviceStorage';
 
 let subscribed = false;
 let restorePromise: Promise<void> | null = null;
@@ -45,6 +42,18 @@ export const dashboardManager = {
     this.persist().catch(() => undefined);
   },
 
+  async connect(id: string): Promise<void> {
+    const device = useDeviceStore.getState().devices[id];
+    if (!device) return;
+    await connectDeviceUseCase.execute({
+      id: DeviceId.create(device.id),
+      name: device.name || null,
+      protocol: device.protocol,
+      rssi: device.rssi ?? -100,
+      isConnectable: true,
+    });
+  },
+
   remove(id: string): void {
     disconnectDeviceUseCase.execute(id).catch(() => undefined).finally(() => {
       useDeviceStore.getState().remove(id);
@@ -56,7 +65,7 @@ export const dashboardManager = {
     if (Object.keys(useDeviceStore.getState().devices).length > 0) return;
     if (restorePromise) return restorePromise;
     restorePromise = (async () => {
-      const devices = await loadDashboardDevices();
+      const devices = await dashboardDeviceStorage.load();
       devices.forEach(device => this.add({ ...device, id: DeviceId.create(device.id) }));
     })();
     try {
@@ -82,7 +91,7 @@ export const dashboardManager = {
       rssi: device.rssi ?? -100,
       isConnectable: true,
     }));
-    await saveDashboardDevices(devices.map(device => ({ ...device, id: DeviceId.create(device.id) })));
+    await dashboardDeviceStorage.save(devices.map(device => ({ ...device, id: DeviceId.create(device.id) })));
   },
 
   destroy(): void {

@@ -1,0 +1,4 @@
+{
+    "commentTranslate.multiLineMerge": true,
+    "java.compile.nullAnalysis.mode": "automatic"
+}

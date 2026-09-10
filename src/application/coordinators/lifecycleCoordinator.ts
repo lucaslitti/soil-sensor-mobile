@@ -7,6 +7,7 @@ export interface LifecyclePolicy {
 
 export class LifecycleCoordinator {
   private readonly cleanups: Array<() => void> = [];
+  private started = false;
 
   constructor(
     private readonly lifecycle: LifecyclePort,
@@ -17,11 +18,15 @@ export class LifecycleCoordinator {
   ) {}
 
   start(): void {
+    if (this.started) return;
+    this.started = true;
     this.cleanups.push(this.lifecycle.subscribeAppState(this.onAppState));
     this.cleanups.push(this.lifecycle.subscribeBluetooth(this.onBluetoothState));
   }
 
   stop(): void {
+    if (!this.started) return;
+    this.started = false;
     while (this.cleanups.length) this.cleanups.pop()!();
   }
 

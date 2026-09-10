@@ -1,6 +1,6 @@
 import type { Device } from 'react-native-ble-plx';
-import { AppError } from '../../../core/errors';
-import { base64ToBytes, bytesToBase64 } from '../../../core/utils/base64';
+import { AppError } from '../errors';
+import { base64ToBytes, bytesToBase64 } from '../base64';
 import { buildUuidVariants } from '../uuidVariants';
 import {
   CHAR_EC,
@@ -18,7 +18,7 @@ import {
   SUB_RECORDS_PER_RECORD,
   TOGGLE_OFF,
   TOGGLE_ON,
-} from '../../../core/constants/protocol';
+} from '../protocol';
 import { ReadingDecoder } from '../../../domain/services/readingDecoder';
 import type { LiveReading } from '../../../domain/entities/sensorDevice';
 import type { SensorSubRecord } from '../../../domain/ports/sensorGateway';

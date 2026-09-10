@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { controlSmartPotUseCase, readLiveUseCase } from '../../application/compositionRoot';
 import type { SmartPotCommand } from '../../application/usecases/controlSmartPot';
-import { dashboardManager } from '../services/devicePresentationCoordinator';
+import { dashboardManager } from './devicePresentationCoordinator';
 import { useDeviceStore } from '../stores/deviceStore';
 import type { ConnectionInfo } from './presentationTypes';
 import type { SmartPotSnapshot } from '../../domain/entities/smartPot';
@@ -39,8 +39,10 @@ export function useSmartPotViewModel(deviceId?: string, deviceName?: string | nu
   }, [deviceId]);
 
   const connect = useCallback(async () => {
+    if (!deviceId) return;
+    await dashboardManager.connect(deviceId);
     await refresh();
-  }, [refresh]);
+  }, [deviceId, refresh]);
 
   const write = useCallback(async (command: SmartPotCommand) => {
     if (!deviceId) return;

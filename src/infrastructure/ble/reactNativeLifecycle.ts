@@ -1,7 +1,8 @@
 import { AppState } from 'react-native';
+import { bleManager } from './bleTransport';
 import type { AppLifecycleState, LifecyclePort } from '../../application/ports/lifecycle';
 
-/** Native 生命周期适配器；BLE 状态由具体 BleManager 适配器注入。 */
+/** Native lifecycle adapter for AppState and react-native-ble-plx state changes. */
 export class ReactNativeLifecycle implements LifecyclePort {
   subscribeAppState(listener: (state: AppLifecycleState) => void): () => void {
     const subscription = AppState.addEventListener('change', state => {
@@ -10,7 +11,10 @@ export class ReactNativeLifecycle implements LifecyclePort {
     return () => subscription.remove();
   }
 
-  subscribeBluetooth(_listener: (state: string) => void): () => void {
-    return () => undefined;
+  subscribeBluetooth(listener: (state: string) => void): () => void {
+    const subscription = bleManager.onStateChange(state => {
+      listener(state === 'PoweredOn' ? 'on' : 'off');
+    }, true);
+    return () => subscription.remove();
   }
 }

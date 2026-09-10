@@ -11,11 +11,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useScanner } from '../viewmodels/useScannerViewModel';
-import { colors } from '../../app/theme/colors';
-import { BluetoothIcon } from '../../shared/components/BluetoothIcon';
-import { AutorenewIcon } from '../../shared/components/AutorenewIcon';
+import { colors } from '../components/colors';
+import { BluetoothIcon } from '../components/BluetoothIcon';
+import { AutorenewIcon } from '../components/AutorenewIcon';
 import { useDeviceListViewModel } from '../viewmodels/useDeviceListViewModel';
-import type { RootStackParamList } from '../../app/navigation/types';
+import type { RootStackParamList } from '../viewmodels/navigationTypes';
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Scanner'>;

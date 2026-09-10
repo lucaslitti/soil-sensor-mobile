@@ -62,6 +62,32 @@ describe('V4 infrastructure primitives', () => {
     expect(max).toBe(1);
   });
 
+  it('stops scheduling while paused and resumes after the interval', async () => {
+    jest.useFakeTimers();
+    try {
+      let calls = 0;
+      const scheduler = new PollingScheduler(10);
+      scheduler.register('device-a', async () => { calls += 1; });
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(calls).toBe(1);
+
+      scheduler.pause('device-a');
+      jest.advanceTimersByTime(30);
+      expect(calls).toBe(1);
+
+      scheduler.resume('device-a');
+      jest.advanceTimersByTime(9);
+      expect(calls).toBe(1);
+      jest.advanceTimersByTime(1);
+      await Promise.resolve();
+      expect(calls).toBe(2);
+      scheduler.stop();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('serializes actor commands and rejects cancelled operations', async () => {
     const actor = new DeviceActor(() => true);
     const events: string[] = [];

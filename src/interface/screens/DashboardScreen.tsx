@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors } from '../../app/theme/colors';
-import type { RootStackParamList } from '../../app/navigation/types';
+import { colors } from '../components/colors';
+import type { RootStackParamList } from '../viewmodels/navigationTypes';
 import { useDeviceListViewModel } from '../viewmodels/useDeviceListViewModel';
 import {
   readingTone,

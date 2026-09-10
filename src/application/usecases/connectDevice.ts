@@ -1,9 +1,9 @@
-import type { DeviceManager } from '../runtime/deviceManager';
+import type { DeviceCoordinator } from '../services/deviceCoordinator';
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
 
 export class ConnectDeviceUseCase {
-  constructor(private readonly manager: DeviceManager) {}
+  constructor(private readonly coordinator: DeviceCoordinator) {}
   execute(device: ScannedDevice): Promise<void> {
-    return this.manager.connect(device);
+    return this.coordinator.connect(device);
   }
 }

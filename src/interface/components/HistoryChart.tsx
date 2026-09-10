@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
-import { colors } from '../../app/theme/colors';
+import { colors } from './colors';
 import type { HistoryPoint } from '../viewmodels/presentationTypes';
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { readLiveUseCase } from '../../application/compositionRoot';
-import { dashboardManager } from '../services/devicePresentationCoordinator';
+import { dashboardManager } from './devicePresentationCoordinator';
 import { useDeviceStore } from '../stores/deviceStore';
 import type { ConnectionInfo } from './presentationTypes';
 import type { LiveReading } from '../../domain/entities/sensorDevice';
@@ -33,6 +33,7 @@ export function useRealtimeViewModel(deviceId?: string, deviceName?: string | nu
   const connect = useCallback(async (id = deviceId, name = deviceName) => {
     if (!id) return;
     setConnection({ state: 'connecting', deviceId: id, deviceName: name ?? null, error: null });
+    await dashboardManager.connect(id);
     await readLiveUseCase.execute(id);
   }, [deviceId, deviceName]);
 

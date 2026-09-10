@@ -41,10 +41,10 @@ export function useHistoryViewModel() {
   useEffect(() => cancelHistory, [cancelHistory]);
   return {
     ...state,
-    readLatest: (_device: unknown, deviceId: string) => read(deviceId, 'latest'),
-    readL1: (_device: unknown, deviceId: string) => read(deviceId, 'l1'),
-    readL2: (_device: unknown, deviceId: string) => read(deviceId, 'l2'),
-    readAll: (_device: unknown, deviceId: string) => read(deviceId, 'all'),
+    readLatest: (deviceId: string) => read(deviceId, 'latest'),
+    readL1: (deviceId: string) => read(deviceId, 'l1'),
+    readL2: (deviceId: string) => read(deviceId, 'l2'),
+    readAll: (deviceId: string) => read(deviceId, 'all'),
     cancelHistory,
   };
 }

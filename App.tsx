@@ -1,9 +1,9 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { RootNavigator } from './src/app/navigation/RootNavigator';
+import { RootNavigator } from './src/interface/components/RootNavigator';
 import { deviceLifecycleCoordinator } from './src/application/compositionRoot';
-import { dashboardManager } from './src/interface/services/devicePresentationCoordinator';
+import { dashboardManager } from './src/interface/viewmodels/devicePresentationCoordinator';
 
 function App() {
   React.useEffect(() => {

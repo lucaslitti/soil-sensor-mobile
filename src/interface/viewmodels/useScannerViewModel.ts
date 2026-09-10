@@ -9,8 +9,12 @@ import { scanDevicesUseCase } from '../../application/compositionRoot';
 export function useScanner() {
   const { state, devices, error, setState, upsert, reset } = useScannerStore();
   const iteratorRef = useRef<AsyncIterator<import('../../domain/ports/sensorGateway').ScannedDevice> | null>(null);
+  const generationRef = useRef(0);
 
   const start = useCallback(async () => {
+    const generation = ++generationRef.current;
+    await iteratorRef.current?.return?.();
+    iteratorRef.current = null;
     reset();
     setState('scanning');
     const iterator = scanDevicesUseCase.scan()[Symbol.asyncIterator]();
@@ -19,29 +23,36 @@ export function useScanner() {
       while (true) {
         const result = await iterator.next();
         if (result.done) break;
-           upsert({
-           id: result.value.id,
+        if (generation !== generationRef.current) break;
+        upsert({
+          id: result.value.id,
           name: result.value.name,
           rssi: result.value.rssi,
           isConnectable: result.value.isConnectable,
           protocol: result.value.protocol,
         });
       }
-      setState('stopped');
+      if (generation === generationRef.current) setState('stopped');
     } catch (e) {
-      setState('error', e instanceof Error ? e.message : 'Scan error');
+      if (generation === generationRef.current) {
+        setState('error', e instanceof Error ? e.message : 'Scan error');
+      }
     } finally {
-      iteratorRef.current = null;
+      if (generation === generationRef.current) iteratorRef.current = null;
     }
   }, [reset, setState, upsert]);
 
+  const cancel = useCallback(() => {
+    generationRef.current += 1;
+    const iterator = iteratorRef.current;
+    iteratorRef.current = null;
+    iterator?.return?.();
+  }, []);
+
   useEffect(() => {
     start();
-    return () => {
-      iteratorRef.current?.return?.();
-      iteratorRef.current = null;
-    };
-  }, [start]);
+    return cancel;
+  }, [cancel, start]);
 
-  return { state, devices, error, start };
+  return { state, devices, error, start, cancel };
 }

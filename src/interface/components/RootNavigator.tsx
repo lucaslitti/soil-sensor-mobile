@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DashboardScreen } from '../../interface/screens/DashboardScreen';
-import { ScannerScreen } from '../../interface/screens/ScannerScreen';
-import { SensorDetailScreen } from '../../interface/screens/SensorDetailScreen';
-import { SmartPotDetailScreen } from '../../interface/screens/SmartPotDetailScreen';
-import { SettingsScreen } from '../../interface/screens/SettingsScreen';
-import type { RootStackParamList } from './types';
+import { DashboardScreen } from '../screens/DashboardScreen';
+import { ScannerScreen } from '../screens/ScannerScreen';
+import { SensorDetailScreen } from '../screens/SensorDetailScreen';
+import { SmartPotDetailScreen } from '../screens/SmartPotDetailScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import type { RootStackParamList } from '../viewmodels/navigationTypes';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

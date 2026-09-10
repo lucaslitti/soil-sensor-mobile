@@ -24,6 +24,9 @@ jest.mock('react-native-ble-plx', () => {
   }
   class FakeBleManager {
     constructor() {}
+    onStateChange() {
+      return { remove: noop };
+    }
     startDeviceScan() {
       noop();
     }
@@ -43,3 +46,9 @@ jest.mock('react-native-ble-plx', () => {
     BleError: class BleError extends Error {},
   };
 });
+
+jest.mock('@op-engineering/op-sqlite', () => ({
+  open: () => ({
+    executeSync: jest.fn(() => ({ rows: [], rowsAffected: 0 })),
+  }),
+}));

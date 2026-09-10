@@ -11,12 +11,12 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRealtimeViewModel } from '../viewmodels/useRealtimeViewModel';
 import { useHistoryViewModel } from '../viewmodels/useHistoryViewModel';
-import { MetricCard } from '../../shared/components/MetricCard';
+import { MetricCard } from '../components/MetricCard';
 import { HistoryChart } from '../components/HistoryChart';
 import { buildHistoryPoints } from '../viewmodels/historyUtil';
-import { colors } from '../../app/theme/colors';
-import type { RootStackParamList } from '../../app/navigation/types';
-import type { Tone } from '../../core/utils/format';
+import { colors } from '../components/colors';
+import type { RootStackParamList } from '../viewmodels/navigationTypes';
+import type { Tone } from '../viewmodels/format';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SensorDetail'>;
 
@@ -27,7 +27,7 @@ const EC_RANGES = { idealMin: 0.8, idealMax: 1.8, warning: 2.5, saline: 4.0 };
 export function SensorDetailScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { deviceId, deviceName } = route.params;
-  const { connection, reading, isReading, device, connect, disconnect, setReadingEnabled } =
+  const { connection, reading, isReading, connect, disconnect, setReadingEnabled } =
     useRealtimeViewModel(deviceId, deviceName);
   const { loading, all, readAll } = useHistoryViewModel();
   const connectStartedRef = useRef(false);
@@ -44,8 +44,8 @@ export function SensorDetailScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (historyStartedRef.current) return;
     historyStartedRef.current = true;
-    readAll(device, deviceId);
-  }, [device, deviceId, readAll]);
+    readAll(deviceId);
+  }, [deviceId, readAll]);
 
   const moisture = reading?.moisturePercent ?? null;
   const temperature = reading?.temperatureC ?? null;

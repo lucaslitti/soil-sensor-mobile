@@ -1,4 +1,4 @@
-import { colors } from '../../app/theme/colors';
+import { colors } from '../components/colors';
 import type { LiveReading } from '../../domain/entities/sensorDevice';
 import type { SmartPotSnapshot } from '../../domain/entities/smartPot';
 

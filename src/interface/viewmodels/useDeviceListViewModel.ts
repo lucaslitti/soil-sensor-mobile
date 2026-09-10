@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useDeviceStore } from '../stores/deviceStore';
-import { dashboardManager } from '../services/devicePresentationCoordinator';
+import { dashboardManager } from './devicePresentationCoordinator';
 import type { ScannedDevice } from '../../domain/ports/sensorGateway';
 
 /** V4 MVVM 适配器：只暴露 UI DTO 与命令，不暴露 Domain Entity。 */
