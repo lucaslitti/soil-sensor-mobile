@@ -11,6 +11,7 @@ import { useDeviceStore } from '../stores/deviceStore';
 
 let subscribed = false;
 let restorePromise: Promise<void> | null = null;
+let restored = false;
 
 function ensureEventProjection(): void {
   if (subscribed) return;
@@ -62,11 +63,28 @@ export const dashboardManager = {
   },
 
   async restore(): Promise<void> {
-    if (Object.keys(useDeviceStore.getState().devices).length > 0) return;
+    if (restored) return;
     if (restorePromise) return restorePromise;
     restorePromise = (async () => {
+      ensureEventProjection();
       const devices = await dashboardDeviceStorage.load();
-      devices.forEach(device => this.add({ ...device, id: DeviceId.create(device.id) }));
+      const devicesToConnect: ScannedDevice[] = [];
+      devices.forEach(device => {
+        const restoredDevice = { ...device, id: DeviceId.create(device.id) };
+        if (!useDeviceStore.getState().devices[device.id]) {
+          useDeviceStore.getState().upsert({
+            id: device.id,
+            name: device.name ?? device.id,
+            protocol: device.protocol,
+            rssi: device.rssi,
+          });
+        }
+        devicesToConnect.push(restoredDevice);
+      });
+      await Promise.all(
+        devicesToConnect.map(device => connectDeviceUseCase.execute(device)),
+      );
+      restored = true;
     })();
     try {
       await restorePromise;
@@ -84,6 +102,7 @@ export const dashboardManager = {
   },
 
   async persist(): Promise<void> {
+    if (restorePromise) await restorePromise;
     const devices = Object.values(useDeviceStore.getState().devices).map(device => ({
       id: device.id,
       name: device.name || null,

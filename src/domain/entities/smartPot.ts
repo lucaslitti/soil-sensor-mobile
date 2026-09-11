@@ -5,6 +5,43 @@ export interface SmartPotHistoryPoint {
   lux: number;
 }
 
+export interface SmartPotHistoryChunk {
+  more: number;
+  records: SmartPotHistoryPoint[];
+}
+
+/** 解析单个历史分页块：`c=<chunk>;t=<total>;n=<count>;more=<0|1>;ts:soil:temp:lux;...`。 */
+export function parseHistoryChunk(raw: string): SmartPotHistoryChunk {
+  const text = (raw ?? '').trim();
+  if (!text || text === 'end') return { more: 0, records: [] };
+  let more = 0;
+  let moreSet = false;
+  const records: SmartPotHistoryPoint[] = [];
+  for (const part of text.split(';')) {
+    const item = part.trim();
+    if (!item) continue;
+    if (!item.includes(':')) {
+      const eq = item.indexOf('=');
+      if (eq <= 0) continue;
+      if (item.slice(0, eq).trim().toLowerCase() === 'more') {
+        more = Number(item.slice(eq + 1).trim());
+        moreSet = true;
+      }
+      continue;
+    }
+    const values = item.split(':');
+    if (values.length !== 4) continue;
+    const timestamp = Number(values[0]);
+    const soil = Number(values[1]);
+    const temperature = Number(values[2]);
+    const lux = Number(values[3]);
+    if ([timestamp, soil, temperature, lux].every(Number.isFinite)) {
+      records.push({ timestamp, soil, temperature, lux });
+    }
+  }
+  return { more: moreSet ? more : records.length === 0 ? 0 : 1, records };
+}
+
 export interface SmartPotSnapshot {
   light: string;
   lightSensor: string;

@@ -14,21 +14,14 @@ import {
   CHART_COLORS,
   CHART_GRID,
 } from './chartTheme';
-import type { HistoryPoint } from '../viewmodels/presentationTypes';
+import type { SmartPotHistoryPoint } from '../../domain/entities/smartPot';
 
 echarts.use([LineChart, GridComponent, TooltipComponent, SVGRenderer]);
 
 const HEIGHT = 168;
 
-interface Props {
-  title: string;
-  points: HistoryPoint[];
-  /** 展示的数据时间范围（如 "近 2 小时"、"近 2 天"）。子记录无时间戳，故用保留窗口表示。 */
-  timeRange?: string;
-}
-
-/** Dark industrial history curve for soil sensors (moisture / temperature / EC). */
-export function HistoryChart({ title, points, timeRange }: Props) {
+/** Dark industrial 24h curve for SmartPot (soil moisture / temperature / light). */
+export function SmartPotHistoryChart({ points }: { points: SmartPotHistoryPoint[] }) {
   const option = useMemo<Record<string, unknown>>(
     () => ({
       animation: true,
@@ -37,12 +30,19 @@ export function HistoryChart({ title, points, timeRange }: Props) {
       backgroundColor: 'transparent',
       grid: CHART_GRID,
       tooltip: buildTooltip(),
-      xAxis: buildCategoryAxis(points.map(point => point.timeLabel)),
+      xAxis: buildCategoryAxis(
+        points.map(point =>
+          new Date(point.timestamp * 1000).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        ),
+      ),
       yAxis: [buildValueAxis(100, true), buildValueAxis(undefined, false)],
       series: [
         buildLineSeries({
           name: 'Moisture',
-          data: points.map(point => point.moisture),
+          data: points.map(point => point.soil),
           color: CHART_COLORS.moisture,
           area: true,
         }),
@@ -52,9 +52,9 @@ export function HistoryChart({ title, points, timeRange }: Props) {
           color: CHART_COLORS.temperature,
         }),
         buildLineSeries({
-          name: 'EC',
-          data: points.map(point => point.ec),
-          color: CHART_COLORS.ec,
+          name: 'Light',
+          data: points.map(point => point.lux),
+          color: CHART_COLORS.light,
           axis: 1,
         }),
       ],
@@ -71,16 +71,15 @@ export function HistoryChart({ title, points, timeRange }: Props) {
   return (
     <View style={styles.wrap}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>Last 24 hours</Text>
         <Text style={styles.meta}>{points.length} pts</Text>
       </View>
-      {timeRange ? <Text style={styles.range}>{timeRange}</Text> : null}
       <ChartCanvas option={option} height={HEIGHT} />
       <ChartLegend
         items={[
-          { color: CHART_COLORS.moisture, label: 'Moisture', value: `${last.moisture.toFixed(1)}%` },
-          { color: CHART_COLORS.temperature, label: 'Temp', value: `${last.temperature.toFixed(1)}℃` },
-          { color: CHART_COLORS.ec, label: 'EC', value: last.ec.toFixed(2) },
+          { color: CHART_COLORS.moisture, label: 'Moisture', value: `${last.soil}%` },
+          { color: CHART_COLORS.temperature, label: 'Temp', value: `${last.temperature}°C` },
+          { color: CHART_COLORS.light, label: 'Light', value: `${last.lux} lx` },
         ]}
       />
     </View>
@@ -98,6 +97,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   meta: { fontSize: 11, letterSpacing: 0.4, color: colors.statusIdeas, fontWeight: '700' },
-  range: { fontSize: 10, color: colors.onSurfaceVariant, marginTop: -4 },
   empty: { color: colors.onSurfaceVariant, padding: 8, fontSize: 13 },
 });

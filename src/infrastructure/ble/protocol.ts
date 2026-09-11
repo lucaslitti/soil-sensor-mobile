@@ -24,6 +24,9 @@ export const SMART_POT_CHAR_PLANT_CONFIG =
 export const SMART_POT_CHAR_HISTORY = '6f3f0009-4f52-4f54-9a4f-000000000001';
 export const SMART_POT_CHAR_TIME = '6f3f000a-4f52-4f54-9a4f-000000000001';
 
+/** SmartPot 历史分页最大块数（固件每块约 5 条，24 条 ≈ 5 页，上限 8）。 */
+export const SMART_POT_HISTORY_MAX_CHUNKS = 8;
+
 /** 实时读数服务 UUID */
 export const SERVICE_INSTANCE_READING = '00000000-0001-726f-736e-65536c696f53';
 /** 历史记录服务 UUID */

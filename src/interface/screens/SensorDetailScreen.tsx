@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -29,23 +29,24 @@ export function SensorDetailScreen({ route, navigation }: Props) {
   const { deviceId, deviceName } = route.params;
   const { connection, reading, isReading, connect, disconnect, setReadingEnabled } =
     useRealtimeViewModel(deviceId, deviceName);
-  const { loading, all, readAll } = useHistoryViewModel();
-  const connectStartedRef = useRef(false);
-  const historyStartedRef = useRef(false);
+  const { loading, error: historyError, all, readAll } = useHistoryViewModel();
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    if (!connectStartedRef.current) {
-      connectStartedRef.current = true;
-      connect(deviceId, deviceName);
-    }
+    if (startedRef.current) return;
+    startedRef.current = true;
+    (async () => {
+      try {
+        await connect(deviceId, deviceName);
+      } catch {
+        // The connection may already be owned by the Dashboard; the history read surfaces its own error.
+      }
+      await readAll(deviceId);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId]);
 
-  useEffect(() => {
-    if (historyStartedRef.current) return;
-    historyStartedRef.current = true;
-    readAll(deviceId);
-  }, [deviceId, readAll]);
+  const historyPoints = useMemo(() => (all ? buildHistoryPoints(all) : []), [all]);
 
   const moisture = reading?.moisturePercent ?? null;
   const temperature = reading?.temperatureC ?? null;
@@ -87,12 +88,15 @@ export function SensorDetailScreen({ route, navigation }: Props) {
   return (
     <View style={styles.container}>
       {/* App top nav bar */}
-      <View style={[styles.navBar, { paddingTop: 10 + insets.top }]}>
+      <View
+        style={[styles.navBar, { paddingTop: 10 + insets.top }]}
+      >
         <TouchableOpacity style={styles.navBtn} onPress={() => navigation.goBack()}>
           <Text style={styles.navBtnText}>‹</Text>
         </TouchableOpacity>
         <View style={[styles.navTitleWrap, { top: insets.top + 10 }]}>
-          <Text style={[styles.navTitle, styles.centeredText]}>{deviceName ?? 'Soil Sensor'}</Text>
+          <Text style={[styles.navTitle, styles.centeredText]}>Soil Sensor</Text>
+          <Text style={[styles.navSubtitle, styles.centeredText]}>{deviceName ?? deviceId}</Text>
         </View>
       </View>
 
@@ -183,11 +187,12 @@ export function SensorDetailScreen({ route, navigation }: Props) {
             <Text style={styles.historyTitle}>History</Text>
           </View>
           {loading ? <ActivityIndicator style={styles.spinner} color={colors.statusIdeas} /> : null}
+          {historyError ? <Text style={styles.error}>{historyError}</Text> : null}
           {all ? (
             <HistoryChart
               title="All History (L1 + L2)"
               timeRange="Time range: last 2 days"
-              points={buildHistoryPoints(all)}
+              points={historyPoints}
             />
           ) : null}
         </View>
@@ -206,18 +211,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: colors.surfaceLow,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingBottom: 10,
   },
   navBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
   },
-  navBtnText: { color: colors.onSurface, fontSize: 18 },
+  navBtnText: { color: colors.onSurface, fontSize: 20 },
   navTitleWrap: {
     position: 'absolute',
     top: 0,
@@ -228,9 +233,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     pointerEvents: 'none',
   },
-  navTitle: { fontSize: 16, color: colors.onSurface, fontWeight: '700' },
+  navTitle: { color: colors.onSurface, fontWeight: '700' },
   centeredText: { textAlign: 'center' },
-  navSubtitle: { fontSize: 10, letterSpacing: 0.4, color: colors.onSurfaceVariant, marginTop: 2 },
+  navSubtitle: { color: colors.onSurfaceVariant, fontSize: 10, maxWidth: 180 },
   pollStrip: {
     backgroundColor: colors.surfaceContainer,
     paddingHorizontal: 16,

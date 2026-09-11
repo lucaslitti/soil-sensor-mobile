@@ -138,37 +138,46 @@ export function ScannerScreen({ navigation }: Props) {
             <SectionHeader
               accentColor={colors.statusProven}
               label={`Connected devices (${1})`}
-              enLabel="CONNECTED PROBE"
+              enLabel="CONNECTED"
             />
-            <ConnectedCard
+            <DeviceCard
               device={connectedDevice}
+              statusLabel="Connected"
+              statusTone="proven"
+              actionLabel="Manage"
+              active
               onPress={() => openDevice(connectedDevice)}
             />
           </View>
         ) : null}
 
-        {/* Available peripherals */}
+        {/* Nearby devices */}
         <View style={styles.section}>
           <SectionHeader
             accentColor={colors.outline}
-            label={`Available peripherals (${devices.length})`}
-            enLabel="AVAILABLE PERIPHERALS"
+            label={`Nearby devices (${devices.length})`}
+            enLabel="NEARBY DEVICES"
           />
 
           {devices.length === 0 ? (
             <Text style={styles.empty}>
-              {state === 'scanning'
-                ? 'No devices found. The device may be asleep — move closer and press the wake button on the top of the housing.'
-                : 'Tap rescan to start.'}
+              {state === 'scanning' ? 'No devices found.' : 'Tap rescan to start.'}
             </Text>
           ) : (
-            devices.map((device) => (
-              <AvailableCard
-                 key={device.id.value}
-                device={device}
-                onPress={() => openDevice(device)}
-              />
-            ))
+            devices.map((device) => {
+              const resolving = !device.name;
+              return (
+                <DeviceCard
+                  key={device.id.value}
+                  device={device}
+                  statusLabel={resolving ? 'Resolving…' : 'Ready'}
+                  statusTone={resolving ? 'muted' : 'neutral'}
+                  actionLabel="Connect"
+                  resolving={resolving}
+                  onPress={() => openDevice(device)}
+                />
+              );
+            })
           )}
         </View>
 
@@ -282,90 +291,56 @@ function MetricCell({
   );
 }
 
-function ConnectedCard({
+type StatusTone = 'proven' | 'neutral' | 'muted';
+
+const STATUS_TONE: Record<StatusTone, { color: string; backgroundColor: string }> = {
+  proven: { color: colors.statusProven, backgroundColor: 'rgba(56, 211, 159, 0.15)' },
+  neutral: { color: colors.onSurfaceVariant, backgroundColor: colors.surfaceContainer },
+  muted: { color: colors.outline, backgroundColor: colors.surfaceContainer },
+};
+
+function DeviceCard({
   device,
+  statusLabel,
+  statusTone,
+  actionLabel,
+  active = false,
+  resolving = false,
   onPress,
 }: {
   device: ScannedDevice;
+  statusLabel: string;
+  statusTone: StatusTone;
+  actionLabel: string;
+  active?: boolean;
+  resolving?: boolean;
   onPress: () => void;
 }) {
   const sig = signalInfo(device.rssi);
-  return (
-    <TouchableOpacity style={styles.connectedCard} onPress={onPress}>
-      <View style={styles.deviceHeader}>
-        <View style={styles.deviceTitleWrap}>
-          <PingDot active color={colors.statusProven} />
-          <Text style={styles.connectedName}>{device.name}</Text>
-        </View>
-        <View style={styles.pollingBadge}>
-          <Text style={styles.pollingBadgeText}>3s polling (3s POLLING)</Text>
-        </View>
-      </View>
-
-      <View style={styles.metricGrid}>
-        <MetricCell
-          label="RSSI"
-          value={`${device.rssi} dBm`}
-          valueStyle={[styles.metricValueStrong, { color: sig.rssiColor }]}
-        />
-        <MetricCell label="Signal" value={`${sig.bars} bars (${sig.label})`} />
-        <MetricCell
-          label="Battery"
-          value="--"
-          valueStyle={styles.metricValueMuted}
-        />
-      </View>
-
-      <View style={styles.connectedFooter}>
-               <Text style={styles.mac}>MAC: {device.id.value}</Text>
-        <View style={styles.manageLink}>
-          <Text style={styles.manageLinkText}>Manage / Details</Text>
-          <Text style={styles.manageChevron}>›</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-function AvailableCard({
-  device,
-  onPress,
-}: {
-  device: ScannedDevice;
-  onPress: () => void;
-}) {
-  const sig = signalInfo(device.rssi);
-  const resolving = !device.name;
 
   return (
     <TouchableOpacity
-      style={[styles.availableCard, resolving && styles.availableCardResolving]}
+      style={[styles.card, resolving && styles.cardResolving]}
+      activeOpacity={0.85}
       onPress={onPress}
     >
-      <View style={styles.deviceHeader}>
-        <View style={styles.deviceTitleWrap}>
-          <View
-            style={[
-              styles.deviceDot,
-              { backgroundColor: resolving ? colors.outline : colors.secondary },
-            ]}
-          />
-          <Text style={[styles.deviceName, resolving && styles.deviceNameResolving]}>
+      <View style={styles.cardHeader}>
+        <View style={styles.cardTitleWrap}>
+          {active ? (
+            <PingDot active color={colors.statusProven} />
+          ) : (
+            <View
+              style={[
+                styles.deviceDot,
+                { backgroundColor: resolving ? colors.outline : colors.secondary },
+              ]}
+            />
+          )}
+          <Text style={[styles.cardName, resolving && styles.cardNameResolving]}>
             {device.name ?? 'Resolving name…'}
           </Text>
         </View>
-        <Text
-          style={[
-            styles.deviceState,
-            resolving ? styles.deviceStateResolving : styles.deviceStateIdle,
-          ]}
-        >
-          {resolving
-            ? 'Resolving GATT…'
-            : device.protocol === 'smart-pot'
-              ? 'SmartPot'
-              : 'Ready'}
-        </Text>
+        <Text style={[styles.statusPill, STATUS_TONE[statusTone]]}>{statusLabel}</Text>
       </View>
 
       <View style={styles.metricGrid}>
@@ -382,24 +357,18 @@ function AvailableCard({
           value={`${sig.bars} bars (${sig.label})`}
           valueStyle={{ color: resolving ? colors.secondary : sig.color }}
         />
-        <MetricCell
-          label="Battery"
-          value="--"
-          valueStyle={resolving ? styles.metricValueMuted : styles.metricValueStrong}
-        />
+        <MetricCell label="Battery" value="--" valueStyle={styles.metricValueMuted} />
       </View>
 
-      {!resolving ? (
-        <View style={styles.availableFooter}>
-           <Text style={styles.mac}>MAC: {device.id.value}</Text>
-          <View style={styles.pairLink}>
-            <Text style={styles.pairLinkText}>
-              {device.protocol === 'smart-pot' ? 'View details' : 'Pair & Connect'}
-            </Text>
-            <Text style={styles.pairArrow}>›</Text>
+      <View style={styles.cardFooter}>
+        <Text style={styles.mac}>MAC: {device.id.value}</Text>
+        {!resolving ? (
+          <View style={styles.actionLink}>
+            <Text style={styles.actionText}>{actionLabel}</Text>
+            <Text style={styles.actionArrow}>›</Text>
           </View>
-        </View>
-      ) : null}
+        ) : null}
+      </View>
     </TouchableOpacity>
   );
 }
@@ -475,68 +444,28 @@ banner: {
     textTransform: 'uppercase',
     color: colors.outline,
   },
-  connectedCard: {
+  card: {
     backgroundColor: colors.surfaceHigh,
     borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
-    borderColor: colors.surfaceHigh,
-    gap: 10,
+    marginBottom: 12,
+    gap: 12,
   },
-  connectedName: { fontSize: 15, color: colors.onSurface, fontWeight: '700' },
-  pollingBadge: {
-    backgroundColor: 'rgba(56, 211, 159, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
-  pollingBadgeText: {
-    fontSize: 10,
-    letterSpacing: 0.4,
-    color: colors.statusProven,
-    fontWeight: '700',
-  },
-  connectedFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceHigh,
-  },
-  manageLink: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  manageLinkText: {
-    fontSize: 11,
-    letterSpacing: 0.4,
-    color: colors.statusIdeas,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  manageChevron: { fontSize: 15, color: colors.statusIdeas, fontWeight: '700' },
-  availableCard: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
-    gap: 10,
-  },
-  availableCardResolving: { opacity: 0.75 },
-  deviceHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  deviceTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  cardResolving: { opacity: 0.75 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTitleWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   deviceDot: { width: 10, height: 10, borderRadius: 5 },
-  deviceName: { fontSize: 15, color: colors.onSurface, fontWeight: '600' },
-  deviceNameResolving: { color: colors.onSurfaceVariant, fontStyle: 'italic' },
-  deviceState: {
+  cardName: { fontSize: 15, color: colors.onSurface, fontWeight: '600' },
+  cardNameResolving: { color: colors.onSurfaceVariant, fontStyle: 'italic' },
+  statusPill: {
     fontSize: 11,
     letterSpacing: 0.4,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 999,
     overflow: 'hidden',
+    fontWeight: '700',
   },
-  deviceStateIdle: { color: colors.onSurfaceVariant, backgroundColor: colors.surfaceHigh },
-  deviceStateResolving: { color: colors.outline, backgroundColor: colors.surfaceHigh },
   metricGrid: { flexDirection: 'row', gap: 6 },
   metricCell: {
     flex: 1,
@@ -544,25 +473,39 @@ banner: {
     borderRadius: 6,
     padding: 8,
   },
-  metricLabel: { fontSize: 10, letterSpacing: 0.4, color: colors.outline, marginBottom: 2 },
+  metricLabel: {
+    fontSize: 10,
+    letterSpacing: 0.4,
+    color: colors.outline,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
   metricValue: { fontSize: 12, color: colors.onSurface },
   metricValueStrong: { fontWeight: '700' },
   metricValueMuted: { color: colors.secondary },
-  availableFooter: {
+  cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.surfaceContainer,
   },
   mac: { fontSize: 11, color: colors.onSurfaceVariant, fontFamily: 'monospace' },
-  pairLink: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  pairLinkText: {
+  actionLink: {
+    width: 96,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  actionText: {
     fontSize: 11,
     letterSpacing: 0.4,
     color: colors.statusIdeas,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
-  pairArrow: { fontSize: 14, color: colors.statusIdeas, fontWeight: '700' },
+  actionArrow: { fontSize: 14, color: colors.statusIdeas, fontWeight: '700' },
   empty: { color: colors.onSurfaceVariant, textAlign: 'center', marginTop: 16, lineHeight: 20 },
   footnote: {
     flexDirection: 'row',

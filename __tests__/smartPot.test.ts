@@ -1,4 +1,28 @@
-import { parseSmartPotHistory, validateSmartPotConfig } from '../src/domain/entities/smartPot';
+import { parseHistoryChunk, parseSmartPotHistory, validateSmartPotConfig } from '../src/domain/entities/smartPot';
+
+describe('parseHistoryChunk', () => {
+  it('parses metadata and records and reports more', () => {
+    const chunk = parseHistoryChunk('c=0;t=24;n=5;more=1;1723456800:43.2:24.1:320;1723460400:42.8:24.3:280');
+    expect(chunk.more).toBe(1);
+    expect(chunk.records).toEqual([
+      { timestamp: 1723456800, soil: 43.2, temperature: 24.1, lux: 320 },
+      { timestamp: 1723460400, soil: 42.8, temperature: 24.3, lux: 280 },
+    ]);
+  });
+
+  it('stops paging when more=0', () => {
+    expect(parseHistoryChunk('c=0;t=2;n=2;more=0;100:40.5:23.1:300').more).toBe(0);
+  });
+
+  it('treats end and empty as no more records', () => {
+    expect(parseHistoryChunk('end')).toEqual({ more: 0, records: [] });
+    expect(parseHistoryChunk('')).toEqual({ more: 0, records: [] });
+  });
+
+  it('ignores malformed records', () => {
+    expect(parseHistoryChunk('c=0;more=1;bad;100:40:20:200').records).toHaveLength(1);
+  });
+});
 
 describe('parseSmartPotHistory', () => {
   it('parses paged history metadata and records', () => {
